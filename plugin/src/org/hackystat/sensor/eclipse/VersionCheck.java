@@ -10,15 +10,11 @@ import javax.xml.parsers.ParserConfigurationException;
 
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.resource.ImageDescriptor;
-import org.eclipse.jface.wizard.IWizard;
-import org.eclipse.jface.wizard.WizardDialog;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchWindow;
-import org.eclipse.update.internal.ui.UpdateUI;
-import org.eclipse.update.internal.ui.wizards.InstallWizard;
-import org.eclipse.update.internal.ui.wizards.ResizableInstallWizardDialog;
+import org.eclipse.update.ui.UpdateManagerUI;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.Constants;
 import org.osgi.framework.Version;
@@ -142,8 +138,11 @@ public class VersionCheck {
    * @return the local plugin version identifier.
    */
   private Version getLocalPluginVersionIdentifier() {
-    //Bundle bundle = EclipseSensorPlugin.getInstance().getBundle();
-    String version = (String) this.bundle.getHeaders().get(Constants.BUNDLE_VERSION);
+    String version = "8.0.0";
+    if (this.bundle != null) {
+      version = (String) this.bundle.getHeaders().get(Constants.BUNDLE_VERSION);  
+    }
+    
     return new Version(version);    
   }
 
@@ -218,16 +217,18 @@ public class VersionCheck {
    */
   private void openNewUpdatesWizard() {
     IWorkbench workbench = EclipseSensorPlugin.getInstance().getWorkbench();
+
     IWorkbenchWindow activeWindow = workbench.getActiveWorkbenchWindow();
     if (activeWindow != null) {
       Shell shell = workbench.getActiveWorkbenchWindow().getShell();
-      IWizard wizard = new InstallWizard(null);
-      WizardDialog dialog = new ResizableInstallWizardDialog(shell, wizard, "");
-      dialog.create();
-      //dialog.getShell().setText(UpdateUI.getString("InstallWizardAction.title")); //$NON-NLS-1$
-      dialog.getShell().setText(UpdateUI.getPluginId());
-      dialog.getShell().setSize(600, 500);
-      dialog.open();
+      UpdateManagerUI.openInstaller(shell); 
+//      IWizard wizard = new InstallWizard(null);
+//      WizardDialog dialog = new ResizableInstallWizardDialog(shell, wizard, "");
+//      dialog.create();
+//      //dialog.getShell().setText(UpdateUI.getString("InstallWizardAction.title")); //$NON-NLS-1$
+//      dialog.getShell().setText(UpdateUI.getPluginId());
+//      dialog.getShell().setSize(600, 500);
+//      dialog.open();
     }
   }
 }

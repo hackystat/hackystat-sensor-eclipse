@@ -75,7 +75,7 @@ public class BuildErrorSensor {
     IMarkerDelta markerDeltas[] = delta.getMarkerDeltas();
     if (markerDeltas != null && markerDeltas.length > 0) {
       // Message pool is used to filter out the repeated compilation error.
-      HashSet messagePool = new HashSet();
+      HashSet<String> messagePool = new HashSet<String>();
       for (int i = 0; i < markerDeltas.length; i++) {
         IMarkerDelta markerDelta = (IMarkerDelta) markerDeltas[i];
         if (markerDelta.getType() == IJavaModelMarker.JAVA_MODEL_PROBLEM_MARKER) {

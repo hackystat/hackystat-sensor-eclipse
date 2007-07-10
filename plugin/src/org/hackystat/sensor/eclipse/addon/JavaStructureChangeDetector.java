@@ -53,8 +53,8 @@ public class JavaStructureChangeDetector implements IElementChangedListener {
    * @param jed Java element delta change.
    */
   private void javaObjectChange(IJavaElementDelta jed) {
-    List additions = new ArrayList();
-    List deletions = new ArrayList();
+    List<IJavaElementDelta> additions = new ArrayList<IJavaElementDelta>();
+    List<IJavaElementDelta> deletions = new ArrayList<IJavaElementDelta>();
     
     // Traverse the delta change tree for refactoring activity
     traverse(jed, additions, deletions);
@@ -135,7 +135,7 @@ public class JavaStructureChangeDetector implements IElementChangedListener {
     //String toName = 
     if (name != null && !"".equals(name)) {
       // Adds refactoring activity
-      List activityData = new ArrayList();
+      List<String> activityData = new ArrayList<String>();
       activityData.add("add");
       activityData.add("type=Refactor");    
       activityData.add("file=" + javaFile.toString());
@@ -153,7 +153,7 @@ public class JavaStructureChangeDetector implements IElementChangedListener {
       this.sensor.getEclipseSensorShell().doCommand("Activity", activityData, msgBuf.toString());
       
       // Adds refactoring (rename) DevEvent
-      List devEventData = new ArrayList();
+      List<String> devEventData = new ArrayList<String>();
       devEventData.add("add");
       devEventData.add("type=Edit");
       devEventData.add("path=" + javaFile.toString());
@@ -203,7 +203,7 @@ public class JavaStructureChangeDetector implements IElementChangedListener {
       msgBuf.append("Rename#" + typeName + "#" + fromName + " -> " + toName);
 
       // Adds refactoring activity
-      List activityData = new ArrayList();
+      List<String> activityData = new ArrayList<String>();
       activityData.add("add");
       activityData.add("type=Refactor");    
       activityData.add("file=" + javaFile.toString());
@@ -219,7 +219,7 @@ public class JavaStructureChangeDetector implements IElementChangedListener {
       //this.sensor.processActivity("Java Edit", javaFile.toString(), javaDataMap);
       
       // Adds refactoring (rename) DevEvent
-      List devEventData = new ArrayList();
+      List<String> devEventData = new ArrayList<String>();
       devEventData.add("add");
       devEventData.add("type=Edit");
       devEventData.add("path=" + javaFile.toString());
@@ -266,7 +266,7 @@ public class JavaStructureChangeDetector implements IElementChangedListener {
       msgBuf.append("Move#" + typeName + "#" + name + "#" + fromName + " -> " + toName);
       
       // Adds refactoring activity
-      List activityData = new ArrayList();
+      List<String> activityData = new ArrayList<String>();
       activityData.add("add");
       activityData.add("type=Refactor");    
       activityData.add("file=" + javaFile.toString());
@@ -284,7 +284,7 @@ public class JavaStructureChangeDetector implements IElementChangedListener {
       //this.sensor.processActivity("Java Edit", javaFile.toString(), javaDataMap);    
 
       // Adds refactoring (move) DevEvent
-      List devEventData = new ArrayList();
+      List<String> devEventData = new ArrayList<String>();
       devEventData.add("add");
       devEventData.add("type=Edit");
       devEventData.add("path=" + javaFile.toString());
@@ -363,7 +363,8 @@ public class JavaStructureChangeDetector implements IElementChangedListener {
    * @param additions Added element holder.
    * @param deletions Deleted element holder.
    */
-  private void traverse(IJavaElementDelta delta, List additions, List deletions) {    
+  private void traverse(IJavaElementDelta delta, List<IJavaElementDelta> additions, 
+      List<IJavaElementDelta> deletions) {    
     // Saves the addition and deletion.
     if (delta.getKind() == IJavaElementDelta.ADDED) {
        additions.add(delta);

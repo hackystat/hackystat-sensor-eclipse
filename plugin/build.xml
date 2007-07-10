@@ -53,10 +53,10 @@
 		<delete dir="${temp.folder}"/>
 	</target>
 
-	<target name="hackystat.sensor.eclipse.jar" depends="init" unless="hackystat.sensor.eclipse.jar" description="Create jar: org.hackystat.sensor.eclipse hackystat.sensor.eclipse.jar.">
-		<delete dir="${temp.folder}/hackystat.sensor.eclipse.jar.bin"/>
-		<mkdir dir="${temp.folder}/hackystat.sensor.eclipse.jar.bin"/>
-		<path id="hackystat.sensor.eclipse.jar.classpath">
+	<target name="sensor.eclipse.jar" depends="init" unless="sensor.eclipse.jar" description="Create jar: org.hackystat.sensor.eclipse sensor.eclipse.jar.">
+		<delete dir="${temp.folder}/sensor.eclipse.jar.bin"/>
+		<mkdir dir="${temp.folder}/sensor.eclipse.jar.bin"/>
+		<path id="sensor.eclipse.jar.classpath">
 			<pathelement path="C:/develop/eclipse/plugins/org.eclipse.core.runtime_3.2.0.v20060603.jar"/>
 			<pathelement path="C:/develop/eclipse/plugins/org.eclipse.osgi_3.2.0.v20060601.jar"/>
 			<pathelement path="C:/develop/eclipse/plugins/org.eclipse.equinox.common_3.2.0.v20060603.jar"/>
@@ -83,7 +83,10 @@
 			<pathelement path="C:/develop/eclipse/plugins/com.ibm.icu_3.4.4.1.jar"/>
 			<pathelement path="C:/develop/eclipse/plugins/org.eclipse.core.commands_3.2.0.I20060605-1400.jar"/>
 			<pathelement path="C:/develop/eclipse/plugins/org.eclipse.team.core_3.2.0.I200606051140.jar"/>
-			<pathelement path="C:/develop/eclipse/plugins/org.eclipse.jdt.ui_3.2.0.v20060605-1400.jar"/>
+			<pathelement path="C:/develop/eclipse/plugins/org.eclipse.jdt.junit_3.2.0.v20060605-1400/junitsupport.jar"/>
+			<pathelement path="C:/develop/eclipse/plugins/org.eclipse.ui.ide_3.2.0.I20060605-1400.jar"/>
+			<pathelement path="C:/develop/eclipse/plugins/org.eclipse.ui.win32_3.2.0.I20060605-1400.jar"/>
+			<pathelement path="C:/develop/eclipse/plugins/org.eclipse.help_3.2.0.v20060602.jar"/>
 			<pathelement path="C:/develop/eclipse/plugins/org.eclipse.ui_3.2.0.I20060605-1400.jar"/>
 			<pathelement path="C:/develop/eclipse/plugins/org.eclipse.swt_3.2.0.v3232o.jar"/>
 			<pathelement path="C:/develop/eclipse/plugins/org.eclipse.swt.win32.win32.x86_3.2.0.v3232m.jar"/>
@@ -91,22 +94,20 @@
 			<pathelement path="C:/develop/eclipse/plugins/org.eclipse.ui.workbench_3.2.0.I20060605-1400.jar"/>
 			<pathelement path="C:/develop/eclipse/plugins/org.eclipse.ui.workbench.compatibility_3.2.0.I20060605-1400/@dot"/>
 			<pathelement path="C:/develop/eclipse/plugins/org.eclipse.ui.workbench.compatibility_3.2.0.I20060605-1400/compatibility.jar"/>
-			<pathelement path="C:/develop/eclipse/plugins/org.eclipse.help_3.2.0.v20060602.jar"/>
-			<pathelement path="C:/develop/eclipse/plugins/org.eclipse.ui.console_3.1.100.v20060605.jar"/>
-			<pathelement path="C:/develop/eclipse/plugins/org.eclipse.jface.text_3.2.0.v20060605-1400.jar"/>
-			<pathelement path="C:/develop/eclipse/plugins/org.eclipse.ui.workbench.texteditor_3.2.0.v20060605-1400.jar"/>
-			<pathelement path="C:/develop/eclipse/plugins/org.eclipse.search_3.2.0.v20060605-1400.jar"/>
-			<pathelement path="C:/develop/eclipse/plugins/org.eclipse.core.filebuffers_3.2.0.v20060605-1400.jar"/>
-			<pathelement path="C:/develop/eclipse/plugins/org.eclipse.ui.ide_3.2.0.I20060605-1400.jar"/>
-			<pathelement path="C:/develop/eclipse/plugins/org.eclipse.ui.win32_3.2.0.I20060605-1400.jar"/>
 			<pathelement path="C:/develop/eclipse/plugins/org.eclipse.ui.views_3.2.0.I20060605-1400.jar"/>
 			<pathelement path="C:/develop/eclipse/plugins/org.eclipse.update.core_3.2.0.v20060605.jar"/>
 			<pathelement path="C:/develop/eclipse/plugins/org.eclipse.update.core.win32_3.2.0.v20060605.jar"/>
 			<pathelement path="C:/develop/eclipse/plugins/org.eclipse.update.ui_3.2.0.v20060605.jar"/>
 			<pathelement path="C:/develop/eclipse/plugins/org.eclipse.ui.forms_3.2.0.v20060602.jar"/>
+			<pathelement path="C:/develop/eclipse/plugins/org.eclipse.jface.text_3.2.0.v20060605-1400.jar"/>
+			<pathelement path="C:/develop/eclipse/plugins/org.eclipse.ui.workbench.texteditor_3.2.0.v20060605-1400.jar"/>
+			<pathelement path="C:/develop/eclipse/plugins/org.eclipse.ui.editors_3.2.0.v20060605-1400.jar"/>
+			<pathelement path="C:/develop/eclipse/plugins/org.eclipse.core.filebuffers_3.2.0.v20060605-1400.jar"/>
 			<pathelement path="C:/develop/eclipse/plugins/org.eclipse.debug.core_3.2.0.v20060605.jar"/>
 			<pathelement path="C:/develop/eclipse/plugins/org.eclipse.debug.ui_3.2.0.v20060605.jar"/>
-			<pathelement path="C:/develop/eclipse/plugins/org.eclipse.ui.editors_3.2.0.v20060605-1400.jar"/>
+			<pathelement path="C:/develop/eclipse/plugins/org.eclipse.ui.console_3.1.100.v20060605.jar"/>
+			<pathelement path="C:/develop/eclipse/plugins/org.eclipse.jdt.ui_3.2.0.v20060605-1400.jar"/>
+			<pathelement path="C:/develop/eclipse/plugins/org.eclipse.search_3.2.0.v20060605-1400.jar"/>
 			<pathelement path="C:/develop/eclipse/plugins/org.eclipse.jdt.launching_3.2.0.v20060605.jar"/>
 			<pathelement path="C:/develop/eclipse/plugins/org.eclipse.jdt.debug_3.2.0.v20060605/jdi.jar"/>
 			<pathelement path="C:/develop/eclipse/plugins/org.eclipse.jdt.debug_3.2.0.v20060605/jdimodel.jar"/>
@@ -119,56 +120,53 @@
 			<pathelement path="C:/develop/eclipse/plugins/org.eclipse.ltk.core.refactoring_3.2.0.v20060605-1400.jar"/>
 			<pathelement path="C:/develop/eclipse/plugins/org.eclipse.ltk.ui.refactoring_3.2.0.v20060605-1400.jar"/>
 			<pathelement path="C:/develop/eclipse/plugins/org.eclipse.jdt.core.manipulation_1.0.0.v20060605-1400.jar"/>
-			<pathelement path="C:/develop/eclipse/plugins/org.eclipse.jdt.junit_3.2.0.v20060605-1400/junitsupport.jar"/>
 			<pathelement path="C:/develop/eclipse/plugins/org.eclipse.jdt.debug.ui_3.2.0.v20060605.jar"/>
 			<pathelement path="C:/develop/eclipse/plugins/org.eclipse.jdt.junit.runtime_3.2.0.v20060605-1400/junitruntime.jar"/>
 			<pathelement path="C:/develop/eclipse/plugins/org.junit_3.8.1/junit.jar"/>
-			<pathelement path="C:/develop/eclipse/plugins/org.eclipse.jdt.junit4.runtime_1.0.0.v20060605-1400.jar"/>
-			<pathelement path="C:/develop/eclipse/plugins/org.junit4_4.1.0/junit-4.1.jar"/>
 			<pathelement path="lib/sensorshell.jar"/>
 			<pathelement path="${build.result.folder}/../org.hackystat.sensor.eclipse/lib/sensorshell.jar"/>
 		</path>
 		<!-- compile the source code -->
-		<javac destdir="${temp.folder}/hackystat.sensor.eclipse.jar.bin" failonerror="${javacFailOnError}" verbose="${javacVerbose}" debug="${javacDebugInfo}" includeAntRuntime="no" bootclasspath="${bundleBootClasspath}" source="${bundleJavacSource}" target="${bundleJavacTarget}"		>
+		<javac destdir="${temp.folder}/sensor.eclipse.jar.bin" failonerror="${javacFailOnError}" verbose="${javacVerbose}" debug="${javacDebugInfo}" includeAntRuntime="no" bootclasspath="${bundleBootClasspath}" source="${bundleJavacSource}" target="${bundleJavacTarget}"		>
 			<compilerarg line="${compilerArg}" compiler="${build.compiler}"/>
-			<classpath refid="hackystat.sensor.eclipse.jar.classpath" />
+			<classpath refid="sensor.eclipse.jar.classpath" />
 			<src path="src/"			/>
-			<compilerarg value="@${basedir}/javaCompiler.hackystat.sensor.eclipse.jar.args" compiler="org.eclipse.jdt.core.JDTCompilerAdapter"/>
-			<compilerarg line="-log '${temp.folder}/hackystat.sensor.eclipse.jar.bin${logExtension}'" compiler="org.eclipse.jdt.core.JDTCompilerAdapter"/>
+			<compilerarg value="@${basedir}/javaCompiler.sensor.eclipse.jar.args" compiler="org.eclipse.jdt.core.JDTCompilerAdapter"/>
+			<compilerarg line="-log '${temp.folder}/sensor.eclipse.jar.bin${logExtension}'" compiler="org.eclipse.jdt.core.JDTCompilerAdapter"/>
 		</javac>
 		<!-- Copy necessary resources -->
-		<copy todir="${temp.folder}/hackystat.sensor.eclipse.jar.bin" failonerror="true" overwrite="false">
+		<copy todir="${temp.folder}/sensor.eclipse.jar.bin" failonerror="true" overwrite="false">
 			<fileset dir="src/" excludes="**/*.java, **/package.htm*"			/>
 		</copy>
 		<mkdir dir="${build.result.folder}"/>
-		<jar destfile="${build.result.folder}/hackystat.sensor.eclipse.jar" basedir="${temp.folder}/hackystat.sensor.eclipse.jar.bin"/>
-		<delete dir="${temp.folder}/hackystat.sensor.eclipse.jar.bin"/>
+		<jar destfile="${build.result.folder}/sensor.eclipse.jar" basedir="${temp.folder}/sensor.eclipse.jar.bin"/>
+		<delete dir="${temp.folder}/sensor.eclipse.jar.bin"/>
 	</target>
 
-	<target name="hackystat.sensor.eclipsesrc.zip" depends="init" unless="hackystat.sensor.eclipsesrc.zip">
+	<target name="sensor.eclipsesrc.zip" depends="init" unless="sensor.eclipsesrc.zip">
 		<mkdir dir="${build.result.folder}"/>
-		<zip destfile="${build.result.folder}/hackystat.sensor.eclipsesrc.zip" filesonly="false" whenempty="skip" update="false">
+		<zip destfile="${build.result.folder}/sensor.eclipsesrc.zip" filesonly="false" whenempty="skip" update="false">
 			<fileset dir="src/" includes="**/*.java"			/>
 		</zip>
 	</target>
 
 	<target name="build.jars" depends="init" description="Build all the jars for the plug-in: org.hackystat.sensor.eclipse.">
-		<available property="hackystat.sensor.eclipse.jar" file="${build.result.folder}/hackystat.sensor.eclipse.jar"/>
-		<antcall target="hackystat.sensor.eclipse.jar"/>
+		<available property="sensor.eclipse.jar" file="${build.result.folder}/sensor.eclipse.jar"/>
+		<antcall target="sensor.eclipse.jar"/>
 	</target>
 
 	<target name="build.sources" depends="init">
-		<available property="hackystat.sensor.eclipsesrc.zip" file="${build.result.folder}/hackystat.sensor.eclipsesrc.zip"/>
-		<antcall target="hackystat.sensor.eclipsesrc.zip"/>
+		<available property="sensor.eclipsesrc.zip" file="${build.result.folder}/sensor.eclipsesrc.zip"/>
+		<antcall target="sensor.eclipsesrc.zip"/>
 	</target>
 
 	<target name="gather.bin.parts" depends="init" if="destination.temp.folder">
 		<mkdir dir="${destination.temp.folder}/org.hackystat.sensor.eclipse_8.0.0"/>
 		<copy todir="${destination.temp.folder}/org.hackystat.sensor.eclipse_8.0.0" failonerror="true" overwrite="false">
-			<fileset dir="${build.result.folder}" includes="hackystat.sensor.eclipse.jar"			/>
+			<fileset dir="${build.result.folder}" includes="sensor.eclipse.jar"			/>
 		</copy>
 		<copy todir="${destination.temp.folder}/org.hackystat.sensor.eclipse_8.0.0" failonerror="true" overwrite="false">
-			<fileset dir="${basedir}" includes="META-INF/,plugin.xml,hackystat.sensor.eclipse.jar,lib/"			/>
+			<fileset dir="${basedir}" includes="META-INF/,plugin.xml,lib/,sensor.eclipse.jar"			/>
 		</copy>
 	</target>
 
@@ -177,17 +175,17 @@
 
 	<target name="gather.sources" depends="init" if="destination.temp.folder">
 		<mkdir dir="${destination.temp.folder}/org.hackystat.sensor.eclipse_8.0.0"/>
-		<copy file="${build.result.folder}/hackystat.sensor.eclipsesrc.zip" todir="${destination.temp.folder}/org.hackystat.sensor.eclipse_8.0.0" failonerror="false" overwrite="false"/>
+		<copy file="${build.result.folder}/sensor.eclipsesrc.zip" todir="${destination.temp.folder}/org.hackystat.sensor.eclipse_8.0.0" failonerror="false" overwrite="false"/>
 	</target>
 
 	<target name="gather.logs" depends="init" if="destination.temp.folder">
 		<mkdir dir="${destination.temp.folder}/org.hackystat.sensor.eclipse_8.0.0"/>
-		<copy file="${temp.folder}/hackystat.sensor.eclipse.jar.bin${logExtension}" todir="${destination.temp.folder}/org.hackystat.sensor.eclipse_8.0.0" failonerror="false" overwrite="false"/>
+		<copy file="${temp.folder}/sensor.eclipse.jar.bin${logExtension}" todir="${destination.temp.folder}/org.hackystat.sensor.eclipse_8.0.0" failonerror="false" overwrite="false"/>
 	</target>
 
 	<target name="clean" depends="init" description="Clean the plug-in: org.hackystat.sensor.eclipse of all the zips, jars and logs created.">
-		<delete file="${build.result.folder}/hackystat.sensor.eclipse.jar"/>
-		<delete file="${build.result.folder}/hackystat.sensor.eclipsesrc.zip"/>
+		<delete file="${build.result.folder}/sensor.eclipse.jar"/>
+		<delete file="${build.result.folder}/sensor.eclipsesrc.zip"/>
 		<delete file="${plugin.destination}/org.hackystat.sensor.eclipse_8.0.0.jar"/>
 		<delete file="${plugin.destination}/org.hackystat.sensor.eclipse_8.0.0.zip"/>
 		<delete dir="${temp.folder}"/>

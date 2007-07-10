@@ -7,10 +7,11 @@ import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
-import org.eclipse.ui.IStartup;
+import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
-import org.hackystat.core.kernel.admin.SensorProperties;
+import org.hackystat.sensor.eclipse.preference.PreferenceConstants;
 import org.osgi.framework.Bundle;
+import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 
 /**
@@ -24,13 +25,14 @@ import org.osgi.framework.BundleContext;
  * Please note that resource bundle is defined since Eclipse ver3. Basically bundle is 
  * interchangable with plugin. 
  *
- * @author Takuya Yamashita
+ * @author Takuya Yamashita, Hongbing Kou
  * @version $Id: EclipseSensorPlugin.java,v 1.1.1.1 2005/10/20 23:56:56 johnson Exp $
  */
-public class EclipseSensorPlugin extends AbstractUIPlugin implements IStartup {
+public class EclipseSensorPlugin extends AbstractUIPlugin implements BundleActivator {
+  /** The plug-in ID */
+  public static final String PLUGIN_ID = "org.hackystat.sensor.eclipse";
   /** The shared instance. */
-  private static EclipseSensorPlugin plugin;
-
+  public static EclipseSensorPlugin plugin;
   
   /**
    * Creates an Hackystat sensor plug-in runtime object for the given plug-in descriptor.
@@ -40,7 +42,7 @@ public class EclipseSensorPlugin extends AbstractUIPlugin implements IStartup {
    */
   public EclipseSensorPlugin() {
     super();
-    EclipseSensorPlugin.plugin = this;
+    plugin = this;
   }
   
   /**
@@ -53,14 +55,37 @@ public class EclipseSensorPlugin extends AbstractUIPlugin implements IStartup {
     //Note that eclipse impose a time limitation on this method. The time consuming
     //sensor initialization code is moved to earlyStartup().
     super.start(context);
-    SensorProperties sensorProperties = new SensorProperties(EclipseSensor.ECLIPSE);
-    boolean isSensorEnabled = sensorProperties.isSensorEnabled();
-    boolean isSensorUpdateEnabled 
-        = sensorProperties.isSensorTypeEnabled(EclipseSensor.ECLIPSE_UPDATE);
-    if (isSensorEnabled && isSensorUpdateEnabled) {
-      SensorUpdateThread sensorUpdateThread = new SensorUpdateThread(context.getBundle());
+    
+    // Preference.
+    IPreferenceStore store = this.getPreferenceStore();
+  
+    boolean isSensorEnabled = store.getBoolean(PreferenceConstants.P_ENABLE);
+    boolean isSensorAutoUpdateEnabled = store.getBoolean(PreferenceConstants.P_ENABLE_AUTOUPDATE);
+  
+    if (isSensorEnabled && isSensorAutoUpdateEnabled) {
+      String updateSite = store.getString(PreferenceConstants.P_UPDATE_SITE);
+      SensorUpdateThread sensorUpdateThread = new SensorUpdateThread(context.getBundle(), 
+            updateSite);
       sensorUpdateThread.start();
-    }       
+    }
+  }
+
+  /**
+   * Returns the shared instance
+   *
+   * @return the shared instance
+   */
+  public static EclipseSensorPlugin getDefault() {
+    return plugin;
+  }
+  
+  /**
+   * Returns the shared instance
+   *
+   * @return the shared instance
+   */
+  public static EclipseSensorPlugin getInstance() {
+    return plugin;
   }
   
   /**
@@ -69,15 +94,18 @@ public class EclipseSensorPlugin extends AbstractUIPlugin implements IStartup {
   private class SensorUpdateThread extends Thread {
     /** Resource bundle. */
     private Bundle bundle;
+    /** Update site. */
+    private String updateSite; 
     
     /**
      * Hackystat sensor update thread.
      * 
      * @param bundle Plugin bundle.
+     * @param store Sensor preference store.
      */
-    SensorUpdateThread(Bundle bundle) {
+    SensorUpdateThread(Bundle bundle, String updateSite) {
       this.setName("SensorUpdateThread");
-      this.bundle = bundle;
+      this.updateSite = updateSite;
     }
     
     /**
@@ -91,11 +119,8 @@ public class EclipseSensorPlugin extends AbstractUIPlugin implements IStartup {
       String last = EclipseSensorI18n.getString("VersionCheck.messageDialogMessageLast");
       String messages[] = {first, between, last};
       
-      EclipseSensor sensor = EclipseSensor.getInstance();
-      String hackystathost = sensor.getHackystatHost();
-      String updateURL = hackystathost + "hackystat/download/eclipse/site.xml";
       VersionCheck versionCheck = new VersionCheck(this.bundle); 
-      versionCheck.processUpdateDialog(updateURL, title, messages);
+      versionCheck.processUpdateDialog(updateSite, title, messages);
     }
   }
   
@@ -112,27 +137,6 @@ public class EclipseSensorPlugin extends AbstractUIPlugin implements IStartup {
     catch (Exception e) {
       return null;
     }
-  }
-
-  /**
-   * Instantiates EclipseSensor class so that the collection for necessary data is ready. Note that
-   * this is called when workbench starts up. This method must be overridden due to IStartup
-   * interface. Because of this method, this class is instantiated on startup.
-   *
-   * @see IStartup
-   */
-  public void earlyStartup() {
-    //To initialize the sensor.
-    EclipseSensor.getInstance();
-  }
-
-  /**
-   * Returns the shared instance.
-   *
-   * @return The this plug-in instance.
-   */
-  public static EclipseSensorPlugin getInstance() {
-    return plugin;
   }
   
   /**
@@ -154,11 +158,7 @@ public class EclipseSensorPlugin extends AbstractUIPlugin implements IStartup {
    * @param e Exception. 
    */
   public void log(Exception e) {
-    String pluginName = "org.hackystat.sensor.eclipse";
-    if (super.getBundle() != null) {
-      pluginName = super.getBundle().getSymbolicName();
-    }
-    
+    String pluginName = super.getBundle().getSymbolicName();
     IStatus status = new Status(IStatus.ERROR, pluginName, 0, e.getMessage(), e);
     plugin.getLog().log(status);
   }

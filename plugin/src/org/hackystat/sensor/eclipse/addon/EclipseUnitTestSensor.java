@@ -39,6 +39,16 @@ public class EclipseUnitTestSensor implements ITestRunListener {
   private String failureMessage;
   /** The error stack trace message. */
   private String errorMessage;
+ 
+  /**
+   * Constructor for the EclipseJUnitListener object. Adds this lister instance to the
+   * <code>org.eclipse.jdt.internal.junit.ui.JUnitPlugin</code> instance.
+   *
+   * @param sensor The EclipseSensor instance.
+   */
+  public EclipseUnitTestSensor() {
+    this(EclipseSensor.getInstance());
+  }
   
   /**
    * Constructor for the EclipseJUnitListener object. Adds this lister instance to the

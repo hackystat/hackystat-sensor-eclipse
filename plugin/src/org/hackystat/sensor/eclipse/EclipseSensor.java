@@ -27,8 +27,7 @@ import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.ASTParser;
-import org.eclipse.jdt.internal.junit.ui.JUnitPlugin;
-import org.eclipse.jdt.junit.ITestRunListener;
+import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.text.DocumentEvent;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IDocumentListener;
@@ -48,11 +47,11 @@ import org.hackystat.core.kernel.sensordata.SensorDataPropertyMap;
 import org.hackystat.sensor.eclipse.addon.BreakPointerSensor;
 import org.hackystat.sensor.eclipse.addon.BuildErrorSensor;
 import org.hackystat.sensor.eclipse.addon.DebugSensor;
-import org.hackystat.sensor.eclipse.addon.EclipseUnitTestSensor;
 import org.hackystat.sensor.eclipse.addon.JavaStatementMeter;
 import org.hackystat.sensor.eclipse.addon.JavaStructureChangeDetector;
 import org.hackystat.sensor.eclipse.event.EclipseSensorEvent;
 import org.hackystat.sensor.eclipse.event.IEclipseSensorEventListener;
+import org.hackystat.sensor.eclipse.preference.PreferenceConstants;
 
 /**
  * Provides all the necessary sensor initialization and collects data in this singleton class. A
@@ -67,8 +66,8 @@ import org.hackystat.sensor.eclipse.event.IEclipseSensorEventListener;
  * @version $Id: EclipseSensor.java,v 1.1.1.1 2005/10/20 23:56:56 johnson Exp $
  */
 public class EclipseSensor {
-
   private static final EclipseSensor theInstance = new EclipseSensor();
+  
   /**
    * Supports all the sensor types. Namely the user who has the ENABLE_ECLIPSE_SENSOR=true can use
    * all the supported Sensor Data Types such as Activity, FileMetric, UnitTest, and so forth.
@@ -143,10 +142,10 @@ public class EclipseSensor {
    * The List to contain event listeners for Eclipse sensor plug-in. A client of the EclipseSensor
    * listener is added to this container.
    */
-  private List eventListeners;
+  private List<IEclipseSensorEventListener> eventListeners;
 
   /** The ITestRunListener to check if the listener is added to the JUnitPlugin. */
-  private ITestRunListener junitListener;
+  //private ITestRunListener junitListener;
 
   /** 12 characters hackystat directory key to check if the new sensor shell should be set. */
   private Timer timer;
@@ -172,26 +171,16 @@ public class EclipseSensor {
    * is lazily instantiated when static <code>getInstance()</code> was called.
    */
   private EclipseSensor() {
-    this.eventListeners = new ArrayList();
+    this.eventListeners = new ArrayList<IEclipseSensorEventListener>();
     this.timer = new Timer();
     this.stateChangeTimerTask = new StateChangeTimerTask();
     this.buffTransTimerTask = new BuffTransTimertask();
     // Get sensor status from property file.
     this.sensorProperties = new SensorProperties(EclipseSensor.ECLIPSE);
-    this.isSensorEnabled = sensorProperties.isSensorEnabled();
-    this.isSensorUpdateEnabled = sensorProperties.isSensorTypeEnabled(EclipseSensor.ECLIPSE_UPDATE);
-    this.hackystathost = sensorProperties.getHackystatHost();
-    this.timerStateChangeInterval = sensorProperties.getStateChangeInterval();
-    String bufftransIntervalString = sensorProperties.getProperty(ECLIPSE_BUFFTRANS_INTERVAL);
-    long bufftransInterval = DEFAULT_BUFFTRANS_INTERVAL;
-    try {
-      bufftransInterval = Long.parseLong(bufftransIntervalString.trim());
-    }
-    catch (Exception e) {
-      // just use the default value.
-    }
-    // Sets bufftrans interval. if there is no bufftrans interval property, 5 seconds are set.
-    this.timeBuffTransInterval = bufftransInterval;
+    
+    this.loadSettings();
+    
+    
     // Adds this EclipseSensorPlugin instance to IResourceChangeListener
     // so that project event and file save event is notified even though
     // initial sensor is disabled.
@@ -216,6 +205,22 @@ public class EclipseSensor {
   }
 
   /**
+   * Loads the plugin settings.
+   *
+   */
+  private void loadSettings() {
+    // Preference.
+    EclipseSensorPlugin plugin = EclipseSensorPlugin.getDefault();
+    IPreferenceStore store = plugin.getPreferenceStore();
+  
+    this.isSensorEnabled = store.getBoolean(PreferenceConstants.P_ENABLE);
+    this.isSensorEnabled = store.getBoolean(PreferenceConstants.P_ENABLE_AUTOUPDATE);
+    this.hackystathost = store.getString(PreferenceConstants.P_HOST);
+    this.timerStateChangeInterval = store.getInt(PreferenceConstants.P_STATECHANGE_INTERVAL);
+    this.timeBuffTransInterval = store.getInt(PreferenceConstants.P_BUFFTRANS_INTERVAL);
+  }
+  
+  /**
    * Initializes sensor and JUnitListener instance if the sensor is enabled. Note that JUnit
    * listener instance is added only when the instance is not instantiated.
    */
@@ -237,12 +242,6 @@ public class EclipseSensor {
       if (this.buffTransTimerTask.scheduledExecutionTime() == 0) {
         this.timer.schedule(this.buffTransTimerTask, this.timeBuffTransInterval * 1000,
             this.timeBuffTransInterval * 1000);
-      }
-
-      // Check if the TestRunListener is not added yet.
-      if (this.junitListener == null) {
-        this.junitListener = new EclipseUnitTestSensor(this);
-        JUnitPlugin.getDefault().addTestRunListener(this.junitListener);
       }
 
       initializeListeners();
@@ -380,7 +379,7 @@ public class EclipseSensor {
     }
 
     // Adds the current activity.
-    List activityData = new ArrayList();
+    List<String> activityData = new ArrayList<String>();
     activityData.add("add");
     activityData.add("file=" + file);
     activityData.add("type=" + activityType);    
@@ -409,7 +408,7 @@ public class EclipseSensor {
       return;
     }
     // Adds the current development event.
-    List devEventList = new ArrayList();
+    List<String> devEventList = new ArrayList<String>();
     devEventList.add("add");
     devEventList.add("path=" + path);
     devEventList.add("type=" + devEventType);
@@ -439,7 +438,7 @@ public class EclipseSensor {
   /** Latest file size. */
   private int latestStateChangeFileSize = 0;
   /** Class name to file name map. */
-  private HashMap class2FileMap = new HashMap();
+  private HashMap<String, String> class2FileMap = new HashMap<String, String>();
 
   /**
    * Process the state change activity whose element consists of the (absolute) file name and its
@@ -473,12 +472,12 @@ public class EclipseSensor {
         msgBuf.append("statechange : " + file.getName());
 
         // Adds statechange activity.
-        List statechangeData = new ArrayList();
+        List<String> statechangeData = new ArrayList<String>();
         statechangeData.add("statechange");
         statechangeData.add("file=" + file.getLocation().toString());
 
         // Adds statechange DevEvent.
-        List devEventData = new ArrayList();
+        List<String> devEventData = new ArrayList<String>();
         devEventData.add("add");
         devEventData.add("path=" + file.getLocation().toString());
         devEventData.add("type=Edit");
@@ -581,14 +580,14 @@ public class EclipseSensor {
       String buffTrans = fromFileName + "->" + toFileName;
       // :RESOVED: 5/21/04 ISSUE:HACK109
       if (!latestBuffTrans.equals(buffTrans)) {
-        List bufferTransList = new ArrayList();
+        List<String> bufferTransList = new ArrayList<String>();
         bufferTransList.add("add");
         //bufferTransList.add("tool=Eclipse");
         bufferTransList.add("fromFile=" + fromFileName);
         bufferTransList.add("toFile=" + toFileName);
         bufferTransList.add("mod=" + String.valueOf(this.isModifiedFromFile));
 
-        List buffTransDevEvent = new ArrayList();
+        List<String> buffTransDevEvent = new ArrayList<String>();
         buffTransDevEvent.add("add");
         // Use the path we're transitioning to as the path value.
         buffTransDevEvent.add("path=" + toFileName);
@@ -623,7 +622,7 @@ public class EclipseSensor {
     if (!this.isSensorEnabled) {
       return;
     }
-    ArrayList devEventArgs = new ArrayList();
+    List<String> devEventArgs = new ArrayList<String>();
     devEventArgs.add("add");
     devEventArgs.add("type=" + type);
     devEventArgs.add("path=" + path);
@@ -647,7 +646,7 @@ public class EclipseSensor {
    * @param pMap Property map.
    */
   public void processUnitTest(String file, String name, String result, SensorDataPropertyMap pMap) {
-    ArrayList argList = new ArrayList();
+    ArrayList<String> argList = new ArrayList<String>();
     argList.add("add");
     argList.add("tool=Eclipse");
     argList.add("name=" + name);
