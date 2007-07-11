@@ -13,18 +13,13 @@ public class PreferenceInitializer extends AbstractPreferenceInitializer {
     EclipseSensorPlugin plugin = EclipseSensorPlugin.getDefault();
     
     IPreferenceStore store = plugin.getPreferenceStore();
-    store.setDefault(PreferenceConstants.P_ENABLE, true);
-    store.setDefault(PreferenceConstants.P_USERKEY, "ChangeThis");
-    store.setDefault(PreferenceConstants.P_HOST, 
-        "http://hackystat.ics.hawaii.edu/");
-    store.setDefault(PreferenceConstants.P_AUTOSEND_INTERVAL, 10);
-    store.setDefault(PreferenceConstants.P_STATECHANGE_INTERVAL, 30);
+    store.setDefault(PreferenceConstants.P_HOST,  "http://hackystat.ics.hawaii.edu/");
+    store.setDefault(PreferenceConstants.P_EMAIL, "food@bar");
+    store.setDefault(PreferenceConstants.P_PASSWORD, "Y9Cpd1dK");
+    
+    store.setDefault(PreferenceConstants.P_ENABLE_AUTOUPDATE, true);
     store.setDefault(PreferenceConstants.P_UPDATE_SITE, 
             "http://hackystat-sensor-eclipse.googlecode.com/svn/trunk/publish/site.xml");
-    store.setDefault(PreferenceConstants.P_BUFFTRANS_INTERVAL, 2);
-    store.setDefault(PreferenceConstants.P_ENABLE_MONITOR, true);
-    store.setDefault(PreferenceConstants.P_ENABLE_AUTOUPDATE, true); 
-    store.setDefault(PreferenceConstants.P_ENABLE_BUFFTRANS, false);  
   }
 
 }

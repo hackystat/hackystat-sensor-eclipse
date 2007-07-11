@@ -1,15 +1,16 @@
 package org.hackystat.sensor.eclipse.addon;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.jdt.core.ElementChangedEvent;
 import org.eclipse.jdt.core.IElementChangedListener;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IJavaElementDelta;
-import org.hackystat.core.kernel.sensordata.SensorDataPropertyMap;
 import org.hackystat.sensor.eclipse.EclipseSensor;
 
 /**
@@ -18,7 +19,7 @@ import org.hackystat.sensor.eclipse.EclipseSensor;
  * private so that it can only be instantiated by Eclise sensor.
  * 
  * @author Hongbing Kou
- * @version $Id: JavaStructureChangeDetector.java,v 1.1.1.1 2005/10/20 23:56:57 johnson Exp $
+ * @version $Id$
  */
 public class JavaStructureChangeDetector implements IElementChangedListener {
   /** Eclipse sensor which is used to send out hackystat data. */
@@ -134,39 +135,14 @@ public class JavaStructureChangeDetector implements IElementChangedListener {
     String name = retrieveName(element);
     //String toName = 
     if (name != null && !"".equals(name)) {
-      // Adds refactoring activity
-      List<String> activityData = new ArrayList<String>();
-      activityData.add("add");
-      activityData.add("type=Refactor");    
-      activityData.add("file=" + javaFile.toString());
-
-      SensorDataPropertyMap javaDataMap = new SensorDataPropertyMap();
-      javaDataMap.put("op", op);
-      javaDataMap.put("type", type);
-      javaDataMap.put("name", name);
-      activityData.add("pMap=" + javaDataMap.encode());
-
-      StringBuffer msgBuf = new StringBuffer();
-      msgBuf.append("Refactor : ");
-      msgBuf.append(op + "#" + type + "#" + name);
-      
-      this.sensor.getEclipseSensorShell().doCommand("Activity", activityData, msgBuf.toString());
-      
-      // Adds refactoring (rename) DevEvent
-      List<String> devEventData = new ArrayList<String>();
-      devEventData.add("add");
-      devEventData.add("type=Edit");
-      devEventData.add("path=" + javaFile.toString());
-      
-      SensorDataPropertyMap devEventPMap = new SensorDataPropertyMap();
+      Map<String, String> devEventPMap = new HashMap<String, String>();
       devEventPMap.put("subtype", "ProgramUnit");
       devEventPMap.put("subsubtype", op);
       devEventPMap.put("language", "java");
       devEventPMap.put("unit-type", type);
       devEventPMap.put("unit-name", name);
-      devEventData.add("pMap=" + devEventPMap.encode());
       
-      this.sensor.getEclipseSensorShell().doCommand("DevEvent", devEventData, msgBuf.toString());
+      this.sensor.addDevEvent("Edit", javaFile.toString(), devEventPMap, op + " " + name);
     }
   }
 
@@ -202,38 +178,15 @@ public class JavaStructureChangeDetector implements IElementChangedListener {
       msgBuf.append("Refactor : ");
       msgBuf.append("Rename#" + typeName + "#" + fromName + " -> " + toName);
 
-      // Adds refactoring activity
-      List<String> activityData = new ArrayList<String>();
-      activityData.add("add");
-      activityData.add("type=Refactor");    
-      activityData.add("file=" + javaFile.toString());
-      
-      SensorDataPropertyMap javaDataMap = new SensorDataPropertyMap();
-      javaDataMap.put("op", "Rename");
-      javaDataMap.put("type", typeName);
-      javaDataMap.put("fromName", fromName);
-      javaDataMap.put("toName", toName);
-      activityData.add("pMap=" + javaDataMap.encode());
-      
-      this.sensor.getEclipseSensorShell().doCommand("Activity", activityData, msgBuf.toString());
-      //this.sensor.processActivity("Java Edit", javaFile.toString(), javaDataMap);
-      
-      // Adds refactoring (rename) DevEvent
-      List<String> devEventData = new ArrayList<String>();
-      devEventData.add("add");
-      devEventData.add("type=Edit");
-      devEventData.add("path=" + javaFile.toString());
-      
-      SensorDataPropertyMap devEventPMap = new SensorDataPropertyMap();
+      Map<String, String> devEventPMap = new HashMap<String, String>();
       devEventPMap.put("subtype", "ProgramUnit");
       devEventPMap.put("subsubtype", "Rename");
       devEventPMap.put("language", "java");
       devEventPMap.put("unit-type", typeName);
       devEventPMap.put("from-unit-name", fromName);
       devEventPMap.put("to-unit-name", toName);
-      devEventData.add("pMap=" + devEventPMap.encode());
       
-      this.sensor.getEclipseSensorShell().doCommand("DevEvent", devEventData, msgBuf.toString());
+      this.sensor.addDevEvent("Edit", javaFile.toString(), devEventPMap, msgBuf.toString());
     }
   }
   
@@ -265,31 +218,7 @@ public class JavaStructureChangeDetector implements IElementChangedListener {
       msgBuf.append("Refactor : ");
       msgBuf.append("Move#" + typeName + "#" + name + "#" + fromName + " -> " + toName);
       
-      // Adds refactoring activity
-      List<String> activityData = new ArrayList<String>();
-      activityData.add("add");
-      activityData.add("type=Refactor");    
-      activityData.add("file=" + javaFile.toString());
-            
-      SensorDataPropertyMap javaDataMap = new SensorDataPropertyMap();
-      javaDataMap.put("op", "Move");
-      javaDataMap.put("type", typeName);
-      javaDataMap.put("name", name);
-      javaDataMap.put("fromName", fromName);
-      javaDataMap.put("toName", toName);
-      activityData.add("pMap=" + javaDataMap.encode());
-      
-      this.sensor.getEclipseSensorShell().doCommand("Activity", activityData, msgBuf.toString());
-      
-      //this.sensor.processActivity("Java Edit", javaFile.toString(), javaDataMap);    
-
-      // Adds refactoring (move) DevEvent
-      List<String> devEventData = new ArrayList<String>();
-      devEventData.add("add");
-      devEventData.add("type=Edit");
-      devEventData.add("path=" + javaFile.toString());
-      
-      SensorDataPropertyMap devEventRenameMap = new SensorDataPropertyMap();
+      Map<String, String> devEventRenameMap = new HashMap<String, String>();
       devEventRenameMap.put("subtype", "ProgramUnit");
       devEventRenameMap.put("subsubtype", "Move");
       devEventRenameMap.put("language", "java");
@@ -297,9 +226,8 @@ public class JavaStructureChangeDetector implements IElementChangedListener {
       // return-type not available
       devEventRenameMap.put("from-unit-name", fromName);
       devEventRenameMap.put("to-unit-name", toName);
-      devEventData.add("pMap=" + devEventRenameMap.encode());
       
-      this.sensor.getEclipseSensorShell().doCommand("DevEvent", devEventData, msgBuf.toString());
+      this.sensor.addDevEvent("Edit", javaFile.toString(), devEventRenameMap, msgBuf.toString());
     }    
   }
   

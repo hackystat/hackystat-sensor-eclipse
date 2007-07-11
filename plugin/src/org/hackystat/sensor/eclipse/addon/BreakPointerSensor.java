@@ -1,5 +1,8 @@
 package org.hackystat.sensor.eclipse.addon;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IMarkerDelta;
 import org.eclipse.core.runtime.CoreException;
@@ -8,7 +11,6 @@ import org.eclipse.debug.core.model.IBreakpoint;
 import org.eclipse.debug.core.model.ILineBreakpoint;
 import org.eclipse.ui.IFileEditorInput;
 import org.eclipse.ui.texteditor.ITextEditor;
-import org.hackystat.core.kernel.sensordata.SensorDataPropertyMap;
 import org.hackystat.sensor.eclipse.EclipseSensor;
 import org.hackystat.sensor.eclipse.EclipseSensorPlugin;
 
@@ -53,22 +55,13 @@ public class BreakPointerSensor implements IBreakpointListener {
       String fileNamePath = file.getLocation().toString();
       String lineNumberString = String.valueOf(((ILineBreakpoint) breakpoint).getLineNumber());
       
-      // Generate Activity data for the debug event
-      SensorDataPropertyMap debugData = new SensorDataPropertyMap();
-      debugData.put("type", "Set Breakpoint");
-      debugData.put("lineno", lineNumberString);
-      String message = constructMessage(fileNamePath, 
-    		           debugData.get("type"), debugData.get("lineno"));
-      this.eclipseSensor.processActivity("Debug", fileNamePath, debugData, message);
-      
       // Also generate DevEvent data for the debug event
-      SensorDataPropertyMap debugDevEventData = new SensorDataPropertyMap();
-      debugDevEventData.put("subtype", "BreakPoint");
-      debugDevEventData.put("set", "set");
-      debugDevEventData.put("line", lineNumberString);
-      message = constructMessage(fileNamePath, "Debug:BreakPoint", debugDevEventData.get("line"));
-      this.eclipseSensor.processDevEvent("Debug", fileNamePath, 
-        debugDevEventData, message);
+      Map<String, String> debugData = new HashMap<String, String>();
+      debugData.put("subtype", "BreakPoint");
+      debugData.put("set", "set");
+      debugData.put("line", lineNumberString);
+      String message = constructMessage(fileNamePath, "Debug:BreakPoint", lineNumberString);
+      this.eclipseSensor.addDevEvent("Debug", fileNamePath, debugData, message);
     }
     catch (CoreException e) {
       EclipseSensorPlugin.getInstance().log(e);
@@ -120,22 +113,13 @@ public class BreakPointerSensor implements IBreakpointListener {
       String fileNamePath = file.getLocation().toString();
       String lineNumberString = String.valueOf(((ILineBreakpoint) breakpoint).getLineNumber());
 
-      // Generate Activity data for the debug event
-      SensorDataPropertyMap debugData = new SensorDataPropertyMap();
-      debugData.put("type", "Unset Breakpoint");      
-      debugData.put("lineno", lineNumberString);      
-      String message = constructMessage(fileNamePath, 
-    		             debugData.get("type"), debugData.get("lineno"));
-      this.eclipseSensor.processActivity("Debug", fileNamePath, debugData, message);
-      
       // Also generate DevEvent data for the debug event
-      SensorDataPropertyMap debugDevEventData = new SensorDataPropertyMap();
-      debugDevEventData.put("subtype", "BreakPoint");
-      debugDevEventData.put("set", "unset");
-      debugDevEventData.put("line", lineNumberString);
-      message = constructMessage(fileNamePath, "Debug:BreakPoint", debugDevEventData.get("line"));
-      this.eclipseSensor.processDevEvent("Debug", fileNamePath, 
-        debugDevEventData, message);
+      Map<String, String> keyValueMap = new HashMap<String, String>();
+      keyValueMap.put("subtype", "BreakPoint");
+      keyValueMap.put("set", "unset");
+      keyValueMap.put("line", lineNumberString);
+      String message = constructMessage(fileNamePath, "Debug:BreakPoint", keyValueMap.get("line"));
+      this.eclipseSensor.addDevEvent("Debug", fileNamePath, keyValueMap, message);
     }
     catch (CoreException e) {
       // Exception can be thrown when there is no associated line number

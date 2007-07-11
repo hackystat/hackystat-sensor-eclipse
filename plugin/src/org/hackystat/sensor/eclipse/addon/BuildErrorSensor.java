@@ -1,6 +1,8 @@
 package org.hackystat.sensor.eclipse.addon;
 
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 
 import org.eclipse.core.resources.IMarkerDelta;
 import org.eclipse.core.resources.IResource;
@@ -9,7 +11,6 @@ import org.eclipse.core.runtime.IPath;
 import org.eclipse.jdt.core.IJavaModelMarker;
 import org.eclipse.ui.IFileEditorInput;
 import org.eclipse.ui.texteditor.ITextEditor;
-import org.hackystat.core.kernel.sensordata.SensorDataPropertyMap;
 import org.hackystat.sensor.eclipse.EclipseSensor;
 
 /**
@@ -86,14 +87,10 @@ public class BuildErrorSensor {
           if ("2".equals(severity) &&  
               (markerDelta.getKind() == IResourceDelta.ADDED || 
                markerDelta.getKind() == IResourceDelta.CHANGED)) {
-            SensorDataPropertyMap compilationErr = new SensorDataPropertyMap();            
-            compilationErr.put("type", "error");
-            compilationErr.put("message", message);
-            
-            SensorDataPropertyMap buildCompileData = new SensorDataPropertyMap();
-            buildCompileData.put("subtype", "Compile");
-            buildCompileData.put("success", "false");
-            buildCompileData.put("error", message);
+            Map<String, String> keyValueMap = new HashMap<String, String>();
+            keyValueMap.put("subtype", "Compile");
+            keyValueMap.put("success", "false");
+            keyValueMap.put("error", message);
             
             StringBuffer displayMessage = new StringBuffer("Build Error");
             displayMessage.append(" : ").append(this.sensor.extractFileName(fileName));
@@ -103,10 +100,7 @@ public class BuildErrorSensor {
                           "#" + (String) markerDelta.getAttribute("message");
             // Only sends out unrepeated data.
             if (!messagePool.contains(data)) {
-              // Handles the newly added compilation error only.
-              this.sensor.processActivity("Build Error", fileName, compilationErr,
-                displayMessage.toString());
-              this.sensor.processDevEvent("Build", fileName, buildCompileData,
+              this.sensor.addDevEvent("Build", fileName, keyValueMap,
                 displayMessage.toString());
               messagePool.add(data);
             }
@@ -115,27 +109,4 @@ public class BuildErrorSensor {
       }
     }      
   }
-
-  /**
-   * Checks compilation error type.
-   * 
-   * @param markerKind Marker delta king. 
-   * @return Compilation error type.
-   */
-  /*  Commented out to remove Java warning (unused)
-  private String checkCompilationerrorType(int markerKind) {
-    String errorType = null;
-    if (markerKind == IResourceDelta.ADDED) {
-      errorType = "Add";
-    }
-    else if (markerKind == IResourceDelta.CHANGED) {
-      errorType = "Change";
-    }
-    else if (markerKind == IResourceDelta.REMOVED) {
-      errorType = "Remove";
-    }
-    
-    return errorType;
-  }  
-  */
 }

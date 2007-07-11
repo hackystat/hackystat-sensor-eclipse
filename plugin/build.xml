@@ -123,8 +123,8 @@
 			<pathelement path="C:/develop/eclipse/plugins/org.eclipse.jdt.debug.ui_3.2.0.v20060605.jar"/>
 			<pathelement path="C:/develop/eclipse/plugins/org.eclipse.jdt.junit.runtime_3.2.0.v20060605-1400/junitruntime.jar"/>
 			<pathelement path="C:/develop/eclipse/plugins/org.junit_3.8.1/junit.jar"/>
-			<pathelement path="lib/sensorshell.jar"/>
-			<pathelement path="${build.result.folder}/../org.hackystat.sensor.eclipse/lib/sensorshell.jar"/>
+			<pathelement path="lib/sensorshell.java6.jar"/>
+			<pathelement path="${build.result.folder}/../org.hackystat.sensor.eclipse/lib/sensorshell.java6.jar"/>
 		</path>
 		<!-- compile the source code -->
 		<javac destdir="${temp.folder}/sensor.eclipse.jar.bin" failonerror="${javacFailOnError}" verbose="${javacVerbose}" debug="${javacDebugInfo}" includeAntRuntime="no" bootclasspath="${bundleBootClasspath}" source="${bundleJavacSource}" target="${bundleJavacTarget}"		>
@@ -166,7 +166,7 @@
 			<fileset dir="${build.result.folder}" includes="sensor.eclipse.jar"			/>
 		</copy>
 		<copy todir="${destination.temp.folder}/org.hackystat.sensor.eclipse_8.0.0" failonerror="true" overwrite="false">
-			<fileset dir="${basedir}" includes="META-INF/,plugin.xml,lib/,sensor.eclipse.jar"			/>
+			<fileset dir="${basedir}" includes="META-INF/,plugin.xml,sensor.eclipse.jar,lib/sensorshell.java6.jar"			/>
 		</copy>
 	</target>
 

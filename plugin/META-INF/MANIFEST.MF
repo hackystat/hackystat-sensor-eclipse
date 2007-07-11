@@ -17,5 +17,5 @@ Require-Bundle: org.eclipse.core.runtime,
  org.eclipse.update.ui,
  org.eclipse.ui.ide
 Eclipse-LazyStart: true
-Bundle-ClassPath: lib/sensorshell.jar,
- sensor.eclipse.jar
+Bundle-ClassPath: sensor.eclipse.jar,
+ lib/sensorshell.java6.jar

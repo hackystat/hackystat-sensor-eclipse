@@ -15,6 +15,6 @@
       </page> 
    </extension>
    <extension point="org.eclipse.jdt.junit.testRunListeners">
-     <testRunListener class="org.hackystat.sensor.eclipse.addon.EclipseUnitTestSensor"/>
+     <testRunListener class="org.hackystat.sensor.eclipse.addon.TestRunnerSensor"/>
    </extension>
 </plugin>

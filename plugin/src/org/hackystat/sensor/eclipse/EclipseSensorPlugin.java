@@ -59,10 +59,9 @@ public class EclipseSensorPlugin extends AbstractUIPlugin implements BundleActiv
     // Preference.
     IPreferenceStore store = this.getPreferenceStore();
   
-    boolean isSensorEnabled = store.getBoolean(PreferenceConstants.P_ENABLE);
     boolean isSensorAutoUpdateEnabled = store.getBoolean(PreferenceConstants.P_ENABLE_AUTOUPDATE);
   
-    if (isSensorEnabled && isSensorAutoUpdateEnabled) {
+    if (isSensorAutoUpdateEnabled) {
       String updateSite = store.getString(PreferenceConstants.P_UPDATE_SITE);
       SensorUpdateThread sensorUpdateThread = new SensorUpdateThread(context.getBundle(), 
             updateSite);
@@ -70,6 +69,18 @@ public class EclipseSensorPlugin extends AbstractUIPlugin implements BundleActiv
     }
   }
 
+  /**
+   * Reimplement stop to terminate the Hackystat sensor.
+   * 
+   * @param context Bundle context for Hackystat sensor.
+   * @throws Exception If error while starting hackystat sensor.
+   */
+  public void stop(BundleContext context) throws Exception {
+    super.stop(context);
+    EclipseSensor sensor = EclipseSensor.getInstance();
+    sensor.stop();
+  }
+  
   /**
    * Returns the shared instance
    *

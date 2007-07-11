@@ -1,12 +1,14 @@
 package org.hackystat.sensor.eclipse.addon;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.eclipse.core.resources.IFile;
 import org.eclipse.debug.core.DebugEvent;
 import org.eclipse.debug.core.IDebugEventSetListener;
 import org.eclipse.debug.core.model.IDebugTarget;
 import org.eclipse.ui.IFileEditorInput;
 import org.eclipse.ui.texteditor.ITextEditor;
-import org.hackystat.core.kernel.sensordata.SensorDataPropertyMap;
 import org.hackystat.sensor.eclipse.EclipseSensor;
 
 /**
@@ -41,21 +43,17 @@ public class DebugSensor implements IDebugEventSetListener {
         DebugEvent event = events[i];
         String debugActivity = translateEventKind(event);
         if (debugActivity != null) {
-          SensorDataPropertyMap debugData = new SensorDataPropertyMap();
-          debugData.put("type", debugActivity);
           StringBuffer displayMessage = new StringBuffer("Debug");
           
-          SensorDataPropertyMap debugDevEventData = new SensorDataPropertyMap();
-          debugDevEventData.put("subtype", debugActivity);
+          Map<String, String> keyValueMap = new HashMap<String, String>();
+          keyValueMap.put("subtype", debugActivity);
           
           displayMessage.append(" : ").append(
             this.eclipseSensor.extractFileName(this.debuggedFile));
           displayMessage.append(" [").append(debugActivity).append("]");
           
-          this.eclipseSensor.processActivity("Debug", this.debuggedFile, debugData, 
-            displayMessage.toString());
-          this.eclipseSensor.processDevEvent("Debug", this.debuggedFile, 
-            debugDevEventData, displayMessage.toString());
+          this.eclipseSensor.addDevEvent("Debug", this.debuggedFile, 
+            keyValueMap, displayMessage.toString());
         }
       }
     }

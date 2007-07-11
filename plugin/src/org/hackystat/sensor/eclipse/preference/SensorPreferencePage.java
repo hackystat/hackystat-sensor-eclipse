@@ -6,15 +6,28 @@ import org.eclipse.jface.preference.StringFieldEditor;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPreferencePage;
 import org.hackystat.sensor.eclipse.EclipseSensorPlugin;
+import org.hackystat.sensorbase.client.SensorBaseClient;
 
 /**
- * Implements preference initializer since Eclipse 3.0.
+ * Implements the preference page for Eclipse Sensor. It does some validation to make sure
+ * that hackystat host, email and password are correct. 
  * 
  * @author Hongbing Kou
  * @version $Id: EclipseSensorPreference.java,v 1.1.1.1 2005/10/20 23:56:56 johnson Exp $
  */
 public class SensorPreferencePage extends FieldEditorPreferencePage 
     implements IWorkbenchPreferencePage {
+  /** Host field. */
+  private StringFieldEditor hostField; 
+  /** Email field. */
+  private StringFieldEditor emailField;
+  /** Password field. */
+  private StringFieldEditor passwordField;
+  /** Autoupdate field. */
+  private BooleanFieldEditor autoUpdateEditor;
+  /** Update site. */
+  private StringFieldEditor udpateSiteField;
+  
   /** 
    * Instantiate Eclipse plugin preference.
    */
@@ -32,62 +45,32 @@ public class SensorPreferencePage extends FieldEditorPreferencePage
    */
   public void createFieldEditors() {
     // hackystat host
-    StringFieldEditor hostField = new StringFieldEditor(
+    this.hostField = new StringFieldEditor(
         PreferenceConstants.P_HOST, "&Host", getFieldEditorParent());
-    hostField.setEmptyStringAllowed(false);
-    super.addField(hostField);
+    this.hostField.setEmptyStringAllowed(false);
+    super.addField(this.hostField);
 
-    // user key
-    StringFieldEditor userKeyField = new StringFieldEditor(
-        PreferenceConstants.P_USERKEY, "User &Key", getFieldEditorParent());
-    userKeyField.setEmptyStringAllowed(false);
-    super.addField(userKeyField);
+    // User email
+    this.emailField = new StringFieldEditor(
+        PreferenceConstants.P_EMAIL, "&Email", getFieldEditorParent());
+    this.emailField.setEmptyStringAllowed(false);
+    super.addField(this.emailField);
 
-    // Enable/disable sensor
-    BooleanFieldEditor enableEditor = new BooleanFieldEditor(
-        PreferenceConstants.P_ENABLE, "&Enable Eclipse Sensor", getFieldEditorParent());
-    super.addField(enableEditor);
+    // Password
+    this.passwordField = new StringFieldEditor(
+        PreferenceConstants.P_PASSWORD, "&Password", getFieldEditorParent());
+    this.passwordField.setEmptyStringAllowed(false);
+    super.addField(this.passwordField);
 
-    // Monitoring message that appears on status bar
-    BooleanFieldEditor monitorEditor = new BooleanFieldEditor(
-        PreferenceConstants.P_ENABLE_MONITOR,
-        "Enable &Monitor", getFieldEditorParent());
-    super.addField(monitorEditor);
-    
     // Whether or not allow auto update
-    BooleanFieldEditor autoUpdateEditor = new BooleanFieldEditor(
+    this.autoUpdateEditor = new BooleanFieldEditor(
         PreferenceConstants.P_ENABLE_AUTOUPDATE,
         "Enable &AutoUpdate", getFieldEditorParent());
-    super.addField(autoUpdateEditor);
+    super.addField(this.autoUpdateEditor);
     
-    // Interval to send data over to a centralized server.
-    //IntegerFieldEditor sendIntervalEditor = new IntegerFieldEditor(
-    //    PreferenceConstants.P_AUTOSEND_INTERVAL,
-    //    "Autosend &Interval (Minutes)", getFieldEditorParent());
-    //sendIntervalEditor.setEmptyStringAllowed(false);
-    //super.addField(sendIntervalEditor);
-    
-    // State change interval. 
-    //IntegerFieldEditor stateChangeIntervalEditor = new IntegerFieldEditor(
-    //    PreferenceConstants.P_STATECHANGE_INTERVAL,
-    //    "&Statechange Interval (Seconds)", getFieldEditorParent());
-    //super.addField(stateChangeIntervalEditor);
-    
-    
-    //IntegerFieldEditor bufferTransIntervalEditor = new IntegerFieldEditor(
-    //    PreferenceConstants.P_BUFFTRANS_INTERVAL,
-    //    "&BufferTrans Interval", getFieldEditorParent());
-    //addField(bufferTransIntervalEditor);
-
-    
-    StringFieldEditor udpateSiteField = new StringFieldEditor(
+    this.udpateSiteField = new StringFieldEditor(
         PreferenceConstants.P_UPDATE_SITE, "&Update Site", getFieldEditorParent());
-    super.addField(udpateSiteField);
-    
-    //BooleanFieldEditor bufferTransEditor = new BooleanFieldEditor(
-    //    PreferenceConstants.P_ENABLE_BUFFTRANS,
-    //    "Enable &BufferTrans", getFieldEditorParent());
-    //super.addField(bufferTransEditor);
+    super.addField(this.udpateSiteField);
   }
 
   /**
@@ -101,12 +84,25 @@ public class SensorPreferencePage extends FieldEditorPreferencePage
   }
   
   /**
-   * Perform okay to validate host/userkey.
+   * Perform okay to validate host/user/password.
    */
-  protected void performApply() {
-    super.performApply();
+  public boolean performOk() {
+    //IPreferenceStore store = super.getPreferenceStore();
+    String host = this.hostField.getStringValue();
+    if (!SensorBaseClient.isHost(host)) {
+      super.setErrorMessage(host + " is an invalid hackystat host!");
+      return false;
+    }
     
-    // Validate Hackystat host.
-    // ...
+    String email = this.emailField.getStringValue(); 
+    //store.getString(PreferenceConstants.P_EMAIL);
+    String password = this.passwordField.getStringValue();
+    //store.getDefaultString(PreferenceConstants.P_PASSWORD);
+    if (!SensorBaseClient.isRegistered(host, email, password)) {
+      super.setErrorMessage("Either email or password is incorrect!");
+      return false;
+    }
+    
+    return super.performOk();
   }
 }
