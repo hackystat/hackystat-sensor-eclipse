@@ -8,6 +8,9 @@
 
 	<target name="all.plugins" depends="init">
 		<ant antfile="build.xml" dir="../plugin" target="${target}">
+			<property name="arch" value="x86"/>
+			<property name="ws" value="win32"/>
+			<property name="os" value="win32"/>
 		</ant>
 	</target>
 	<target name="all.features" depends="init">
@@ -70,10 +73,10 @@
 		<eclipse.idReplacer featureFilePath="${feature.base}/features/org.hackystat.sensor.eclipse_8.0.0/feature.xml"  selfVersion="8.0.0" featureIds="" pluginIds="org.hackystat.sensor.eclipse,8.0.0,"/>
 		<antcall target="rootFiles${os}_${ws}_${arch}"/>
 	</target>
-	<target name="rootFiles*_*_*">
+	<target name="rootFileswin32_win32_x86">
 	</target>
 	<target name="rootFilesgroup_group_group">
-		<antcall target="rootFiles*_*_*"/>
+		<antcall target="rootFileswin32_win32_x86"/>
 	</target>
 
 	<target name="zip.distribution" depends="init" description="Create a zip containing all the plug-ins and features for the feature: org.hackystat.sensor.eclipse.">
