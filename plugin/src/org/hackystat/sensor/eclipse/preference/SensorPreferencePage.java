@@ -103,6 +103,9 @@ public class SensorPreferencePage extends FieldEditorPreferencePage
       return false;
     }
     
+    
+    //TODO: Change sensorsell to let the current setting take effect so that usres 
+    // don't have to restart Eclipse.    
     return super.performOk();
   }
 }

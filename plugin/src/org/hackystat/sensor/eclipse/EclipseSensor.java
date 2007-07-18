@@ -226,6 +226,9 @@ public class EclipseSensor {
         // Gets opened file since the initial opened file is not notified from IPartListener.
         String fileName = EclipseSensor.this.getFileName(this.activeTextEditor);
 
+        //TODO: Hackystat 8 wants resource. For example, a file resource will look like
+        // file://c:// If Eclipse resource is already in this format, we can simply use
+        // it as a resource. 
         Map<String, String> keyValueMap = new HashMap<String, String>();
         keyValueMap.put("subtype", "Open");
         keyValueMap.put("unit-type", "file");
