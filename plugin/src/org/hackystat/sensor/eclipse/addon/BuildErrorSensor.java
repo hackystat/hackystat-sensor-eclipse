@@ -1,5 +1,6 @@
 package org.hackystat.sensor.eclipse.addon;
 
+import java.net.URI;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -72,7 +73,8 @@ public class BuildErrorSensor {
     if (!fileName.equals(deltaFileName)) {
       return;
     }
-      
+    
+    URI fileResource = fileEditorInput.getFile().getLocationURI();
     IMarkerDelta markerDeltas[] = delta.getMarkerDeltas();
     if (markerDeltas != null && markerDeltas.length > 0) {
       // Message pool is used to filter out the repeated compilation error.
@@ -93,14 +95,14 @@ public class BuildErrorSensor {
             keyValueMap.put("error", message);
             
             StringBuffer displayMessage = new StringBuffer("Build Error");
-            displayMessage.append(" : ").append(this.sensor.extractFileName(fileName));
+            displayMessage.append(" : ").append(this.sensor.extractFileName(fileResource));
             displayMessage.append(" [").append(message).append("]");
             
             String data = fileName + "#" + severity + 
                           "#" + (String) markerDelta.getAttribute("message");
             // Only sends out unrepeated data.
             if (!messagePool.contains(data)) {
-              this.sensor.addDevEvent("Build", fileName, keyValueMap,
+              this.sensor.addDevEvent("Build", fileResource, keyValueMap,
                 displayMessage.toString());
               messagePool.add(data);
             }

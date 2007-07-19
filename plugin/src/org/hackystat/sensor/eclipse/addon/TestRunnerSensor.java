@@ -1,5 +1,6 @@
 package org.hackystat.sensor.eclipse.addon;
 
+import java.net.URI;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -12,14 +13,10 @@ import org.hackystat.sensor.eclipse.EclipseSensor;
  * Provides a JUnit listener implementing class to get JUnit result information. 
  * A client must add this implementing class to the JUnitPlugin class in such a way that:
  * 
- * <pre>
- * ITestRunListener eclipseListener = new EclipseJUnitListener(EclipseSensor.getInstance());
- * JUnitPlugin.getDefault().addTestRunListener(eclipseListener);
- * </pre>
- * 
+ * Note that this class extend the extension point defined in the JUnit plugin.
  *
- * @author Takuya Yamashita, Hongbing Kou
- * @version $Id: EclipseUnitTestSensor.java,v 1.1.1.1 2005/10/20 23:56:56 johnson Exp $
+ * @author Hongbing Kou 
+ * @version $Id$
  */
 public class TestRunnerSensor implements ITestRunListener {
   /** The EclipseSensor. */
@@ -218,15 +215,15 @@ public class TestRunnerSensor implements ITestRunListener {
     keyValueMap.put("testcount", String.valueOf(this.testCount));
     keyValueMap.put("testindice", String.valueOf(this.testIndice));
 
-    String testFile = this.sensor.getObjectFile(testName);
-    if (testFile == null) {
-      testFile = this.sensor.getActiveFile();
+    URI testFileResource = this.sensor.getObjectFile(testName);
+    if (testFileResource == null) {
+      testFileResource = this.sensor.getActiveFile();
     }
     
     // Increment indice number by one. 
     this.testIndice++;
     // Process UnitTest
-    this.sensor.addDevEvent("Test", testFile, keyValueMap, name + " : " + result);
+    this.sensor.addDevEvent("Test", testFileResource, keyValueMap, name + " : " + result);
   }
 
   /**

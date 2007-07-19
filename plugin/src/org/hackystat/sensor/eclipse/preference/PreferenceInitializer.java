@@ -19,7 +19,7 @@ public class PreferenceInitializer extends AbstractPreferenceInitializer {
     
     store.setDefault(PreferenceConstants.P_ENABLE_AUTOUPDATE, true);
     store.setDefault(PreferenceConstants.P_UPDATE_SITE, 
-            "http://hackystat-sensor-eclipse.googlecode.com/svn/trunk/publish/site.xml");
+            "http://hackystat-sensor-eclipse.googlecode.com/svn/trunk/site/site.xml");
   }
 
 }

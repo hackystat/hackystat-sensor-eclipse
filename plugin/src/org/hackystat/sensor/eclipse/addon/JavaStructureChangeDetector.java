@@ -1,5 +1,6 @@
 package org.hackystat.sensor.eclipse.addon;
 
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -111,7 +112,7 @@ public class JavaStructureChangeDetector implements IElementChangedListener {
    */
   private void processUnary(IPath javaFile, String op, IJavaElementDelta delta) {
     IJavaElement element = delta.getElement();
-    
+
     // Stop if there is no associated element. 
     if (javaFile == null || element == null || element.getResource() == null) {
       return;
@@ -142,7 +143,8 @@ public class JavaStructureChangeDetector implements IElementChangedListener {
       devEventPMap.put("unit-type", type);
       devEventPMap.put("unit-name", name);
       
-      this.sensor.addDevEvent("Edit", javaFile.toString(), devEventPMap, op + " " + name);
+      URI resource = element.getResource().getLocationURI();
+      this.sensor.addDevEvent("Edit", resource, devEventPMap, op + " " + name);
     }
   }
 
@@ -185,8 +187,9 @@ public class JavaStructureChangeDetector implements IElementChangedListener {
       devEventPMap.put("unit-type", typeName);
       devEventPMap.put("from-unit-name", fromName);
       devEventPMap.put("to-unit-name", toName);
-      
-      this.sensor.addDevEvent("Edit", javaFile.toString(), devEventPMap, msgBuf.toString());
+
+      URI resource = fromDelta.getElement().getResource().getLocationURI();
+      this.sensor.addDevEvent("Edit", resource, devEventPMap, msgBuf.toString());
     }
   }
   
@@ -227,7 +230,8 @@ public class JavaStructureChangeDetector implements IElementChangedListener {
       devEventRenameMap.put("from-unit-name", fromName);
       devEventRenameMap.put("to-unit-name", toName);
       
-      this.sensor.addDevEvent("Edit", javaFile.toString(), devEventRenameMap, msgBuf.toString());
+      URI resource = element.getResource().getLocationURI();
+      this.sensor.addDevEvent("Edit", resource, devEventRenameMap, msgBuf.toString());
     }    
   }
   

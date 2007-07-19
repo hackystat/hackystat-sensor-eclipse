@@ -1,5 +1,6 @@
 package org.hackystat.sensor.eclipse.addon;
 
+import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -19,7 +20,7 @@ import org.hackystat.sensor.eclipse.EclipseSensor;
  */
 public class DebugSensor implements IDebugEventSetListener {
   /** The file being debugged. */
-  private String debuggedFile;
+  private URI debuggedFile;
   /** Eclipse sensor. */
   private EclipseSensor eclipseSensor;
   
@@ -76,7 +77,7 @@ public class DebugSensor implements IDebugEventSetListener {
         ITextEditor activeEditor = this.eclipseSensor.getActiveTextEditor();
         IFileEditorInput fileEditorInput = (IFileEditorInput) activeEditor.getEditorInput();
         IFile file = fileEditorInput.getFile();
-        this.debuggedFile = file.getLocation().toString();
+        this.debuggedFile = file.getLocationURI();
       }
     }
     else if (event.getKind() == DebugEvent.TERMINATE) {

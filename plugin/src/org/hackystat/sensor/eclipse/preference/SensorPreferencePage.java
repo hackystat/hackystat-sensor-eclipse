@@ -5,6 +5,7 @@ import org.eclipse.jface.preference.FieldEditorPreferencePage;
 import org.eclipse.jface.preference.StringFieldEditor;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPreferencePage;
+import org.hackystat.sensor.eclipse.EclipseSensor;
 import org.hackystat.sensor.eclipse.EclipseSensorPlugin;
 import org.hackystat.sensorbase.client.SensorBaseClient;
 
@@ -103,9 +104,13 @@ public class SensorPreferencePage extends FieldEditorPreferencePage
       return false;
     }
     
+    EclipseSensor sensor = EclipseSensor.getInstance();
+    // Stop the sensor temporarily to let is send out previously collected sensor data.
+    sensor.stop();
     
-    //TODO: Change sensorsell to let the current setting take effect so that usres 
-    // don't have to restart Eclipse.    
+    // Ask sensor to enable the new settings.
+    sensor.hotReloadHackystatHostSettings(host, email, password);
+    
     return super.performOk();
   }
 }

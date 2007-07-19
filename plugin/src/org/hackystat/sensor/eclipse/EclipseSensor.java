@@ -1,5 +1,6 @@
 package org.hackystat.sensor.eclipse;
 
+import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Timer;
@@ -15,7 +16,6 @@ import org.eclipse.core.resources.IResourceDeltaVisitor;
 import org.eclipse.core.resources.IWorkspace;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.IPath;
 import org.eclipse.debug.core.DebugPlugin;
 import org.eclipse.debug.core.IBreakpointManager;
 import org.eclipse.jdt.core.ICompilationUnit;
@@ -160,7 +160,7 @@ public class EclipseSensor {
    *
    * @return Sensor properties. 
    */
-  protected void loadHackystatHostSettings() {
+  private synchronized void loadHackystatHostSettings() {
     // Preference.
     EclipseSensorPlugin plugin = EclipseSensorPlugin.getDefault();
     IPreferenceStore store = plugin.getPreferenceStore();
@@ -169,6 +169,19 @@ public class EclipseSensor {
     String email = store.getString(PreferenceConstants.P_EMAIL);
     String password = store.getString(PreferenceConstants.P_PASSWORD);
     
+    SensorProperties sensorProperties = new SensorProperties(host, email, password);
+    // Check if the new sensor property file enable sensor to be activated.
+    this.sensorShellWrapper = new SensorShellWrapper(sensorProperties);
+  }
+
+  /**
+   * Reloads Hackystat settings.  
+   * 
+   * @param host Hackystat host name.
+   * @param email Email address.
+   * @param password Password.
+   */
+  public synchronized void hotReloadHackystatHostSettings(String host, String email, String password) {
     SensorProperties sensorProperties = new SensorProperties(host, email, password);
     // Check if the new sensor property file enable sensor to be activated.
     this.sensorShellWrapper = new SensorShellWrapper(sensorProperties);
@@ -224,16 +237,13 @@ public class EclipseSensor {
         // Sets activeTextEditor. Otherwise a first activated file would not be recorded.
         this.activeTextEditor = (ITextEditor) activeEditorPart;
         // Gets opened file since the initial opened file is not notified from IPartListener.
-        String fileName = EclipseSensor.this.getFileName(this.activeTextEditor);
+        URI fileResource = EclipseSensor.this.getFileResource(this.activeTextEditor);
 
-        //TODO: Hackystat 8 wants resource. For example, a file resource will look like
-        // file://c:// If Eclipse resource is already in this format, we can simply use
-        // it as a resource. 
         Map<String, String> keyValueMap = new HashMap<String, String>();
         keyValueMap.put("subtype", "Open");
         keyValueMap.put("unit-type", "file");
-        keyValueMap.put("unit-name", EclipseSensor.this.extractFileName(fileName));
-        this.addDevEvent("Edit", fileName, keyValueMap, "Opened " + fileName);
+        keyValueMap.put("unit-name", EclipseSensor.this.extractFileName(fileResource));
+        this.addDevEvent("Edit", fileResource, keyValueMap, "Opened " + fileResource.toString());
 
         IDocumentProvider provider = this.activeTextEditor.getDocumentProvider();
         IDocument document = provider.getDocument(activeEditorPart.getEditorInput());
@@ -267,8 +277,14 @@ public class EclipseSensor {
    * @param moreKeyValueMap Additional development event data, eg "unit-name=EclipseSensor".
    * @param message DevEvent message to be used for logging and display.
    */
-  public void addDevEvent(String type, String path, 
-      Map<String, String> moreKeyValueMap, String message) {
+  public void addDevEvent(String type, URI fileResource, Map<String, String> moreKeyValueMap, 
+      String message) {
+   
+    String path = "";
+    if (fileResource != null) {
+      path = fileResource.toString();
+    }
+    
     Map<String, String> keyValueMap = new HashMap<String, String>();
     keyValueMap.put("Tool", "Eclipse");
     keyValueMap.put("SensorDataType", "DevEvent");
@@ -283,26 +299,27 @@ public class EclipseSensor {
   }
   
   /**
-   * Extracts file name from full name with path.
+   * Extracts file name from a file resource URI.
    *
-   * @param fileNamePath File name path.
+   * @param fileResource File name path.
    * @return File name.
    */
-  public String extractFileName(String fileNamePath) {
-    if (fileNamePath != null && fileNamePath.indexOf("/") > 0) {
-      return fileNamePath.substring(fileNamePath.lastIndexOf("/") + 1);
+  public String extractFileName(URI fileResource) {
+    String fileStirng = fileResource.toString();
+    if (fileStirng != null && fileStirng.indexOf("/") > 0) {
+      return fileStirng.substring(fileStirng.lastIndexOf("/") + 1);
     }
     else {
-      return fileNamePath;
+      return fileStirng;
     }
   }
 
   /** Keep track of the latest state change file to avoid sending out repeated data. */
-  private String latestStateChangeFileName = "";
+  private URI latestStateChangeFile = null;
   /** Latest file size. */
   private int latestStateChangeFileSize = 0;
-  /** Class name to file name map. */
-  private HashMap<String, String> class2FileMap = new HashMap<String, String>();
+  /** Class name to file URI map. */
+  private HashMap<String, URI> class2FileMap = new HashMap<String, URI>();
 
   /**
    * Process the state change activity whose element consists of the (absolute) file name and its
@@ -312,12 +329,13 @@ public class EclipseSensor {
     if (this.activeTextEditor == null) {
       return;
     }
-    String activeFileName = this.getFileName(this.activeTextEditor);
-    if (!activeFileName.equals("")) {
+    
+    URI fileResource = this.getFileResource(this.activeTextEditor);
+    if (fileResource != null) {
       int activeBufferSize = this.activeBufferSize;
 
       // Will not send out data if there is no state change at all.
-      if (this.latestStateChangeFileName.equals(activeFileName)
+      if (fileResource.equals(this.latestStateChangeFile)
           && this.latestStateChangeFileSize == activeBufferSize) {
         return;
       }
@@ -346,7 +364,7 @@ public class EclipseSensor {
           // Measure java file.
           testCounter = measureJavaFile(file);
           
-          this.class2FileMap.put(className, file.getLocation().toString());
+          this.class2FileMap.put(className, file.getLocationURI());
           String methodCountString = String.valueOf(testCounter.getNumOfMethods());
           statechaneKeyValueMap.put("current-methods", methodCountString);
 
@@ -380,10 +398,10 @@ public class EclipseSensor {
         }
         msgBuf.append("]");
 
-        String path = file.getLocation().toString();
-        this.addDevEvent("Edit", path, statechaneKeyValueMap, msgBuf.toString());
+        this.addDevEvent("Edit", fileResource, statechaneKeyValueMap, msgBuf.toString());
       }
-      this.latestStateChangeFileName = activeFileName;
+      
+      this.latestStateChangeFile = fileResource;
       this.latestStateChangeFileSize = activeBufferSize;
     }
   }
@@ -421,23 +439,23 @@ public class EclipseSensor {
     if (this.activeTextEditor == null || (this.previousTextEditor == null)) {
       return;
     }
-    String toFileName = this.getFileName(this.activeTextEditor);
-    String fromFileName = this.getFileName(this.previousTextEditor);
-    if (!toFileName.equals(fromFileName) && !toFileName.equals("") && !fromFileName.equals("")) {
-      String buffTrans = fromFileName + "->" + toFileName;
+    URI toFile = this.getFileResource(this.activeTextEditor);
+    URI fromFile = this.getFileResource(this.previousTextEditor);
+    if (fromFile != null && toFile != null && !toFile.equals(fromFile)) {
+      String buffTrans = fromFile.toString() + "->" + toFile.toString();
       // :RESOVED: 5/21/04 ISSUE:HACK109
       if (!latestBuffTrans.equals(buffTrans)) {
         HashMap<String, String> buffTranKeyValuePairs = new HashMap<String, String>();
         
         buffTranKeyValuePairs.put("subtype", "BufferTransition");
-        buffTranKeyValuePairs.put("from-buff-name", fromFileName);
-        buffTranKeyValuePairs.put("to-buff-name", toFileName);
+        buffTranKeyValuePairs.put("from-buff-name", fromFile.toString());
+        buffTranKeyValuePairs.put("to-buff-name", toFile.toString());
         buffTranKeyValuePairs.put("modified", String.valueOf(this.isModifiedFromFile));
         
-        String message = "BuffTrans : " + this.extractFileName(fromFileName) + " --> " +
-                          this.extractFileName(toFileName);
+        String message = "BuffTrans : " + this.extractFileName(fromFile) + " --> " +
+                          this.extractFileName(toFile);
 
-        this.addDevEvent("Edit", toFileName, buffTranKeyValuePairs, message);
+        this.addDevEvent("Edit", toFile, buffTranKeyValuePairs, message);
         latestBuffTrans = buffTrans;
       }
     }
@@ -489,27 +507,27 @@ public class EclipseSensor {
   }
 
   /**
-   * Gets the fully qualified file name, namely, absolute path to the java file with its extension.
-   * For example, C:\cvs\foobarproject\src\foo\bar\Bar.java.
+   * Gets the URI of the associated file. It will return file URI in format such as 
+   * file:/D:/cvs/foobarproject/src/foo/bar/Bar.java. Note that it returns null when
+   * the IFile instance does not exist.
    *
    * @param textEditor A ITextEditor instance form which the file name is retrieved.
    * @return The fully qualified file name. For example, C:\cvs\foobarproject\src\foo\bar\Bar.java.
    */
-  private String getFileName(ITextEditor textEditor) {
+  private URI getFileResource(ITextEditor textEditor) {
     if (textEditor != null) {
       IEditorInput editorInput = textEditor.getEditorInput();
       if (editorInput != null && editorInput instanceof IFileEditorInput) {
         IFileEditorInput input = (IFileEditorInput) editorInput;
         IFile file = input.getFile();
         if (file != null) {
-          IPath location = file.getLocation();
-          if (location != null) {
-            return location.toString();  
-          }          
+          URI fileResource = file.getLocationURI();
+          return fileResource;
         }
       }
     }
-    return "";
+    
+    return null;
   }
 
   /**
@@ -526,18 +544,18 @@ public class EclipseSensor {
    * 
    * @return File being edited.
    */
-  public String getActiveFile() {
-    return getFileName(this.activeTextEditor);
+  public URI getActiveFile() {
+    return getFileResource(this.activeTextEditor);
   }
 
   /**
    * Gets fully qualified path from object.
    * 
    * @param className Class name.
-   * @return File name path.
+   * @return File resour URI.
    */
-  public String getObjectFile(String className) {
-    return (String) this.class2FileMap.get(className);  
+  public URI getObjectFile(String className) {
+    return this.class2FileMap.get(className);  
   }
   
   
@@ -683,15 +701,15 @@ public class EclipseSensor {
      */
     public void partClosed(IWorkbenchPart part) {
       if (part instanceof ITextEditor) {
-        String fileName = EclipseSensor.this.getFileName((ITextEditor) part);
+        URI fileResource = EclipseSensor.this.getFileResource((ITextEditor) part);
         Map<String, String> keyValueMap = new HashMap<String, String>();
         keyValueMap.put("subtype", "Close");
-        if (fileName.endsWith(".java")) {
+        if (fileResource != null && fileResource.toString().endsWith(".java")) {
           keyValueMap.put("language", "java");
         }
         keyValueMap.put("unit-type", "file");
-        keyValueMap.put("unit-name", EclipseSensor.this.extractFileName(fileName));
-        EclipseSensor.this.addDevEvent("Edit", fileName, keyValueMap, fileName);          
+        keyValueMap.put("unit-name", EclipseSensor.this.extractFileName(fileResource));
+        EclipseSensor.this.addDevEvent("Edit", fileResource, keyValueMap, fileResource.toString());          
         
         IEditorPart activeEditorPart = part.getSite().getPage().getActiveEditor();
         if (activeEditorPart == null) {
@@ -757,13 +775,13 @@ public class EclipseSensor {
     public void partOpened(IWorkbenchPart part) {
       if (part instanceof ITextEditor && (part != EclipseSensor.this.activeTextEditor)) {
         EclipseSensor.this.activeTextEditor = (ITextEditor) part;
-        String fileName = EclipseSensor.this.getFileName((ITextEditor) part);
+        URI fileResource = EclipseSensor.this.getFileResource((ITextEditor) part);
 
         Map<String, String> keyValueMap = new HashMap<String, String>();
         keyValueMap.put("subtype", "Open");
         keyValueMap.put("unit-type", "file");
-        keyValueMap.put("unit-name", EclipseSensor.this.extractFileName(fileName));
-        EclipseSensor.this.addDevEvent("Edit", fileName, keyValueMap, fileName);          
+        keyValueMap.put("unit-name", EclipseSensor.this.extractFileName(fileResource));
+        EclipseSensor.this.addDevEvent("Edit", fileResource, keyValueMap, fileResource.toString());          
       }
     }
   }
@@ -859,7 +877,7 @@ public class EclipseSensor {
       if (resource instanceof IProject && ((flag == IResourceDelta.OPEN) || (flag == 147456))) {
         IProject project = resource.getProject();
         String projectName = project.getName();
-        String projectLocation = project.getFile(".project").getLocation().toString();
+        URI projectResoruce = project.getFile(".project").getLocationURI();
 
         Map<String, String> keyValueMap = new HashMap<String, String>();
         keyValueMap.put("unit-type", "project");
@@ -867,13 +885,13 @@ public class EclipseSensor {
 
         if (((IProject) resource).isOpen()) {
           keyValueMap.put("subtype", "Open");
-          EclipseSensor.this.addDevEvent("Edit", projectLocation, 
-            keyValueMap, projectLocation);          
+          EclipseSensor.this.addDevEvent("Edit", projectResoruce, 
+            keyValueMap, projectResoruce.toString());          
         }
         else {
           keyValueMap.put("subtype", "Close");
-          EclipseSensor.this.addDevEvent("Edit", projectLocation, 
-            keyValueMap, projectLocation);          
+          EclipseSensor.this.addDevEvent("Edit", projectResoruce, 
+            keyValueMap, projectResoruce.toString());          
         }
         return false;
       }
@@ -915,12 +933,13 @@ public class EclipseSensor {
 
           //EclipseSensor.this.eclipseSensorShell.doCommand("Activity", activityData);
           //Construct message to display on Eclipse status bar.
-          String fileName = file.getLocation().toString();
+          URI fileResource = file.getLocationURI();
+          
           StringBuffer message = new StringBuffer("Save File");
-          message.append(" : ").append(EclipseSensor.this.extractFileName(fileName));
+          message.append(" : ").append(EclipseSensor.this.extractFileName(fileResource));
           
           keyValueMap.put("subtype", "Save");
-          EclipseSensor.this.addDevEvent("Edit", fileName, keyValueMap, message.toString());
+          EclipseSensor.this.addDevEvent("Edit", fileResource, keyValueMap, message.toString());
         }
 
         // Visit the children because it is not necessary for the saving file to be only one file.
