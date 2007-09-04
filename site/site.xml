@@ -3,13 +3,5 @@
    <description url="index.html">
       The Hackystat Sensor Update Site contains feature and plug-in versions for Hackystat sensor for Eclipse project releases.
    </description>
-   <feature url="features/org.hackystat.sensor.eclipse_8.0.0.jar" id="org.hackystat.sensor.eclipse" version="8.0.0">
-      <category name="EclipseSensor"/>
-   </feature>
-   <archive path="plugins/org.hackystat.sensor.eclipse_8.0.0.jar" url="plugins/org.hackystat.sensor.eclipse_8.0.0.jar"/>
-   <category-def name="EclipseSensor" label="Hackystat sensor for Eclipse">
-      <description>
-         This category contains the features of Hackystat Eclipse Sensor.
-      </description>
-   </category-def>
+   <feature url="features/org.hackystat.sensor.eclipse_8.0.904.jar" id="org.hackystat.sensor.eclipse" version="8.0.904"/>
 </site>
