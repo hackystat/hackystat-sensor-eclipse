@@ -137,11 +137,11 @@ public class JavaStructureChangeDetector implements IElementChangedListener {
     //String toName = 
     if (name != null && !"".equals(name)) {
       Map<String, String> devEventPMap = new HashMap<String, String>();
-      devEventPMap.put("subtype", "ProgramUnit");
-      devEventPMap.put("subsubtype", op);
-      devEventPMap.put("language", "java");
-      devEventPMap.put("unit-type", type);
-      devEventPMap.put("unit-name", name);
+      devEventPMap.put("Subtype", "ProgramUnit");
+      devEventPMap.put("Subsubtype", op);
+      devEventPMap.put("Language", "java");
+      devEventPMap.put("Unit-Type", type);
+      devEventPMap.put("Unit-Name", name);
       
       URI resource = element.getResource().getLocationURI();
       this.sensor.addDevEvent("Edit", resource, devEventPMap, op + " " + name);
@@ -181,12 +181,12 @@ public class JavaStructureChangeDetector implements IElementChangedListener {
       msgBuf.append("Rename#" + typeName + "#" + fromName + " -> " + toName);
 
       Map<String, String> devEventPMap = new HashMap<String, String>();
-      devEventPMap.put("subtype", "ProgramUnit");
-      devEventPMap.put("subsubtype", "Rename");
-      devEventPMap.put("language", "java");
-      devEventPMap.put("unit-type", typeName);
-      devEventPMap.put("from-unit-name", fromName);
-      devEventPMap.put("to-unit-name", toName);
+      devEventPMap.put("Subtype", "ProgramUnit");
+      devEventPMap.put("Subsubtype", "Rename");
+      devEventPMap.put("Language", "java");
+      devEventPMap.put("Unit-Type", typeName);
+      devEventPMap.put("From-Unit-Name", fromName);
+      devEventPMap.put("To-Unit-Name", toName);
 
       URI resource = fromDelta.getElement().getResource().getLocationURI();
       this.sensor.addDevEvent("Edit", resource, devEventPMap, msgBuf.toString());
@@ -222,13 +222,13 @@ public class JavaStructureChangeDetector implements IElementChangedListener {
       msgBuf.append("Move#" + typeName + "#" + name + "#" + fromName + " -> " + toName);
       
       Map<String, String> devEventRenameMap = new HashMap<String, String>();
-      devEventRenameMap.put("subtype", "ProgramUnit");
-      devEventRenameMap.put("subsubtype", "Move");
-      devEventRenameMap.put("language", "java");
-      devEventRenameMap.put("unit-type", typeName);
+      devEventRenameMap.put("Subtype", "ProgramUnit");
+      devEventRenameMap.put("Subsubtype", "Move");
+      devEventRenameMap.put("Language", "java");
+      devEventRenameMap.put("Unit-Type", typeName);
       // return-type not available
-      devEventRenameMap.put("from-unit-name", fromName);
-      devEventRenameMap.put("to-unit-name", toName);
+      devEventRenameMap.put("From-Unit-Name", fromName);
+      devEventRenameMap.put("To-Unit-Name", toName);
       
       URI resource = element.getResource().getLocationURI();
       this.sensor.addDevEvent("Edit", resource, devEventRenameMap, msgBuf.toString());

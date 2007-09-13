@@ -11,15 +11,15 @@ import org.hackystat.sensorbase.client.SensorBaseClient;
 
 /**
  * Implements the preference page for Eclipse Sensor. It does some validation to make sure
- * that hackystat host, email and password are correct. 
+ * that hackystat sensorbase host, email and password are correct. 
  * 
  * @author Hongbing Kou
  * @version $Id: EclipseSensorPreference.java,v 1.1.1.1 2005/10/20 23:56:56 johnson Exp $
  */
 public class SensorPreferencePage extends FieldEditorPreferencePage 
     implements IWorkbenchPreferencePage {
-  /** Host field. */
-  private StringFieldEditor hostField; 
+  /** SensorBase field. */
+  private StringFieldEditor sensorbaseField; 
   /** Email field. */
   private StringFieldEditor emailField;
   /** Password field. */
@@ -45,11 +45,11 @@ public class SensorPreferencePage extends FieldEditorPreferencePage
    * restore itself.
    */
   public void createFieldEditors() {
-    // hackystat host
-    this.hostField = new StringFieldEditor(
-        PreferenceConstants.P_HOST, "&Host", getFieldEditorParent());
-    this.hostField.setEmptyStringAllowed(false);
-    super.addField(this.hostField);
+    // hackystat sensorbase host
+    this.sensorbaseField = new StringFieldEditor(
+        PreferenceConstants.P_SENSORBASE, "&SensorBase", getFieldEditorParent());
+    this.sensorbaseField.setEmptyStringAllowed(false);
+    super.addField(this.sensorbaseField);
 
     // User email
     this.emailField = new StringFieldEditor(
@@ -85,13 +85,13 @@ public class SensorPreferencePage extends FieldEditorPreferencePage
   }
   
   /**
-   * Perform okay to validate host/user/password.
+   * Perform okay to validate sensorbase/user/password.
    */
   public boolean performOk() {
     //IPreferenceStore store = super.getPreferenceStore();
-    String host = this.hostField.getStringValue();
-    if (!SensorBaseClient.isHost(host)) {
-      super.setErrorMessage(host + " is an invalid hackystat host!");
+    String sensorbase = this.sensorbaseField.getStringValue();
+    if (!SensorBaseClient.isHost(sensorbase)) {
+      super.setErrorMessage(sensorbase + " is an invalid hackystat host!");
       return false;
     }
     
@@ -99,7 +99,7 @@ public class SensorPreferencePage extends FieldEditorPreferencePage
     //store.getString(PreferenceConstants.P_EMAIL);
     String password = this.passwordField.getStringValue();
     //store.getDefaultString(PreferenceConstants.P_PASSWORD);
-    if (!SensorBaseClient.isRegistered(host, email, password)) {
+    if (!SensorBaseClient.isRegistered(sensorbase, email, password)) {
       super.setErrorMessage("Either email or password is incorrect!");
       return false;
     }
@@ -109,7 +109,7 @@ public class SensorPreferencePage extends FieldEditorPreferencePage
     sensor.stop();
     
     // Ask sensor to enable the new settings.
-    sensor.hotReloadHackystatHostSettings(host, email, password);
+    sensor.hotReloadHackystatHostSettings(sensorbase, email, password);
     
     return super.performOk();
   }

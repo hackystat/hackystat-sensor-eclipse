@@ -90,9 +90,9 @@ public class BuildErrorSensor {
               (markerDelta.getKind() == IResourceDelta.ADDED || 
                markerDelta.getKind() == IResourceDelta.CHANGED)) {
             Map<String, String> keyValueMap = new HashMap<String, String>();
-            keyValueMap.put("subtype", "Compile");
-            keyValueMap.put("success", "false");
-            keyValueMap.put("error", message);
+            keyValueMap.put("Subtype", "Compile");
+            keyValueMap.put("Success", "false");
+            keyValueMap.put("Error", message);
             
             StringBuffer displayMessage = new StringBuffer("Build Error");
             displayMessage.append(" : ").append(this.sensor.extractFileName(fileResource));

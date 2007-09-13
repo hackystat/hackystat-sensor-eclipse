@@ -58,9 +58,9 @@ public class BreakPointerSensor implements IBreakpointListener {
       
       // Also generate DevEvent data for the debug event
       Map<String, String> debugData = new HashMap<String, String>();
-      debugData.put("subtype", "BreakPoint");
-      debugData.put("set", "set");
-      debugData.put("line", lineNumberString);
+      debugData.put("Subtype", "BreakPoint");
+      debugData.put("Set", "set");
+      debugData.put("Line", lineNumberString);
       String message = constructMessage(fileResource, "Debug:BreakPoint", lineNumberString);
       this.eclipseSensor.addDevEvent("Debug", fileResource, debugData, message);
     }
@@ -116,9 +116,9 @@ public class BreakPointerSensor implements IBreakpointListener {
 
       // Also generate DevEvent data for the debug event
       Map<String, String> keyValueMap = new HashMap<String, String>();
-      keyValueMap.put("subtype", "BreakPoint");
-      keyValueMap.put("set", "unset");
-      keyValueMap.put("line", lineNumberString);
+      keyValueMap.put("Subtype", "BreakPoint");
+      keyValueMap.put("Set", "unset");
+      keyValueMap.put("Line", lineNumberString);
       String message = constructMessage(fileResource, "Debug:BreakPoint", keyValueMap.get("line"));
       this.eclipseSensor.addDevEvent("Debug", fileResource, keyValueMap, message);
     }

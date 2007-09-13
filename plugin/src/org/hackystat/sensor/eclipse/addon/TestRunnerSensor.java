@@ -193,27 +193,27 @@ public class TestRunnerSensor implements ITestRunListener {
     
     // Run test
     Map<String, String> keyValueMap = new HashMap<String, String>();
-    keyValueMap.put("runtime", String.valueOf(this.runTime.getTime()));
+    keyValueMap.put("Runtime", String.valueOf(this.runTime.getTime()));
 
     // Elapsed time
     long elapsedTime = endTime.getTime() - this.startTime.getTime();
     elapsedTime = (elapsedTime >= 0) ? elapsedTime : 0;
-    keyValueMap.put("elapsedTime", String.valueOf(elapsedTime));
+    keyValueMap.put("ElapsedTime", String.valueOf(elapsedTime));
     
     String result = "pass";
     if (this.failureMessage.length() > 0) {
       result = "fail";
-      keyValueMap.put("failureString", this.failureMessage);      
+      keyValueMap.put("FailureString", this.failureMessage);      
     }
     else if (this.errorMessage.length() > 0) {
       result = "fail";
-      keyValueMap.put("errorString" , this.errorMessage);      
+      keyValueMap.put("ErrorString" , this.errorMessage);      
     }
-    keyValueMap.put("testCase", testCase); // Test case
-    keyValueMap.put("testName", testName); // Test name
+    keyValueMap.put("TestCase", testCase); // Test case
+    keyValueMap.put("TestName", testName); // Test name
     
-    keyValueMap.put("testcount", String.valueOf(this.testCount));
-    keyValueMap.put("testindice", String.valueOf(this.testIndice));
+    keyValueMap.put("TestCount", String.valueOf(this.testCount));
+    keyValueMap.put("TestIndice", String.valueOf(this.testIndice));
 
     URI testFileResource = this.sensor.getObjectFile(testName);
     if (testFileResource == null) {

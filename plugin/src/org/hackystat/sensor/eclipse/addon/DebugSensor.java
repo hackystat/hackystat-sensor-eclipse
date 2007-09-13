@@ -47,7 +47,7 @@ public class DebugSensor implements IDebugEventSetListener {
           StringBuffer displayMessage = new StringBuffer("Debug");
           
           Map<String, String> keyValueMap = new HashMap<String, String>();
-          keyValueMap.put("subtype", debugActivity);
+          keyValueMap.put("Subtype", debugActivity);
           
           displayMessage.append(" : ").append(
             this.eclipseSensor.extractFileName(this.debuggedFile));
