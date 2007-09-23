@@ -1,0 +1,77 @@
+<project name="EclipseSensorHeadless" default="build" basedir=".">
+  <!-- Headless build the Eclipse sensor -->
+  
+  <!-- Always make environment variables available with the "env." prefix. --> 
+  <property environment="env"/> 
+  
+  <!-- 
+     Note that this version number MUST be the same as what in plugin.xml and feature.xml, otherwise
+     the headless build will fail. 
+   -->
+  <property name="version" value="8.0.922"/>
+
+  <target name="build">
+    <echo message="Base dir : ${basedir}"/>
+    
+    <!-- Cleans up the build directory if it exists. -->
+    <delete dir="${basedir}/build" failonerror="false"/>
+    
+    <property name="featureDir" value="${basedir}/build/features/org.hackystat.sensor.eclipse"/>
+    <property name="pluginDir"  value="${basedir}/build/plugins/org.hackystat.sensor.eclipse"/>
+    
+    <!-- Preparing feature -->
+    <mkdir dir="${featureDir}"/>
+    <copy todir="${featureDir}">
+        <fileset dir="${basedir}/feature"/>
+    </copy>
+    
+    <!-- Preparing plugin -->
+    <mkdir dir="${pluginDir}"/>
+    <copy todir="${pluginDir}">
+        <fileset dir="${basedir}/plugin"/>
+    </copy>
+ 
+    <!-- 
+         Build the feature and plugin in headless mode. Please be cautious that the version 
+         numbers are from the Eclipse version you use. Be sure to change them if necessary. 
+      -->
+    <echo message="Launching the headless build."/>
+    <java jar="${env.ECLIPSE_HOME}/plugins/org.eclipse.equinox.launcher_1.0.0.v20070606.jar" fork="true">
+      <arg line="-application org.eclipse.ant.core.antRunner"/>
+      <arg line="-buildfile ${env.ECLIPSE_HOME}/plugins/org.eclipse.pde.build_3.3.0.v20070612/scripts/build.xml"/>
+      <jvmarg value="-DbaseLocation=${env.ECLIPSE_HOME}"/>
+      <jvmarg value="-DbuildDirectory=${basedir}/build"/>
+    </java>
+
+    <property name="testBuildDir" value="${basedir}/build/I.TestBuild"/>
+    <unzip src="${testBuildDir}/org.hackystat.sensor.eclipse-TestBuild.zip" dest="${testBuildDir}"/>
+
+    <property name="featureDist" value="${testBuildDir}/org.hackystat.sensor.eclipse/features/org.hackystat.sensor.eclipse_${version}"/>
+    <property name="pluginDist" value="${testBuildDir}/org.hackystat.sensor.eclipse/plugins/org.hackystat.sensor.eclipse_${version}"/>
+
+    <!-- Generate feature dist -->
+    <jar destfile="${featureDist}.jar" basedir="${featureDist}" includes="**/*"/>       
+    <copy todir="${basedir}/site/features" file="${featureDist}.jar"/>
+
+
+    <!-- Generate plugin dist -->
+    <jar destfile="${pluginDist}.jar" basedir="${pluginDist}" includes="**/*"/>       
+    <copy todir="${basedir}/site/plugins" file="${pluginDist}.jar"/>
+ 
+    <!-- Create a distrition of the Eclipse sensor as an updatable site. --> 
+    <echo message="Creating the distribution of the Hackystat Eclipse sensor."/>
+    <mkdir dir="${basedir}/build/dist"/>
+    <copy todir="${basedir}/build/dist">
+       <fileset dir="${basedir}/site">
+         <exclude name="**/.svn"/>
+       </fileset>
+    </copy>
+ </target>
+   
+
+ <target name="clean">
+    <!-- Cleans up the build directory if it exists. -->
+    <delete dir="${basedir}/build" failonerror="false"/>
+ </target>
+</project>
+
