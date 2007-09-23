@@ -36,6 +36,13 @@
       <jvmarg value="-DbaseLocation=${env.ECLIPSE_HOME}"/>
       <jvmarg value="-DbuildDirectory=${basedir}/build"/>
     </java>
+    
+    <unzip src="${basedir}/build/I.Build/org.hackystat.sensor.eclipse-Build.zip" dest="${basedir}/build/I.Build/"/>
+    
+    <mkdir dir="${basedir}/build/dist"/>
+    <zip destfile="${basedir}/build/dist/hackystat-sensor-eclipse.zip">
+        <fileset dir="${basedir}/build/I.Build/org.hackystat.sensor.eclipse"/>
+    </zip>
  </target>
    
 
