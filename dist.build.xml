@@ -4,12 +4,6 @@
   <!-- Always make environment variables available with the "env." prefix. --> 
   <property environment="env"/> 
   
-  <!-- 
-     Note that this version number MUST be the same as what in plugin.xml and feature.xml, otherwise
-     the headless build will fail. 
-   -->
-  <property name="version" value="8.0.922"/>
-
   <target name="build">
     <echo message="Base dir : ${basedir}"/>
     
