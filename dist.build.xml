@@ -42,30 +42,6 @@
       <jvmarg value="-DbaseLocation=${env.ECLIPSE_HOME}"/>
       <jvmarg value="-DbuildDirectory=${basedir}/build"/>
     </java>
-
-    <property name="testBuildDir" value="${basedir}/build/I.TestBuild"/>
-    <unzip src="${testBuildDir}/org.hackystat.sensor.eclipse-TestBuild.zip" dest="${testBuildDir}"/>
-
-    <property name="featureDist" value="${testBuildDir}/org.hackystat.sensor.eclipse/features/org.hackystat.sensor.eclipse_${version}"/>
-    <property name="pluginDist" value="${testBuildDir}/org.hackystat.sensor.eclipse/plugins/org.hackystat.sensor.eclipse_${version}"/>
-
-    <!-- Generate feature dist -->
-    <jar destfile="${featureDist}.jar" basedir="${featureDist}" includes="**/*"/>       
-    <copy todir="${basedir}/site/features" file="${featureDist}.jar"/>
-
-
-    <!-- Generate plugin dist -->
-    <jar destfile="${pluginDist}.jar" basedir="${pluginDist}" includes="**/*"/>       
-    <copy todir="${basedir}/site/plugins" file="${pluginDist}.jar"/>
- 
-    <!-- Create a distrition of the Eclipse sensor as an updatable site. --> 
-    <echo message="Creating the distribution of the Hackystat Eclipse sensor."/>
-    <mkdir dir="${basedir}/build/dist"/>
-    <copy todir="${basedir}/build/dist">
-       <fileset dir="${basedir}/site">
-         <exclude name="**/.svn"/>
-       </fileset>
-    </copy>
  </target>
    
 
