@@ -5,6 +5,7 @@
   <property environment="env"/> 
   
   <target name="build">
+    
     <echo message="Base dir : ${basedir}"/>
     
     <!-- Cleans up the build directory if it exists. -->
@@ -39,8 +40,9 @@
     
     <unzip src="${basedir}/build/I.Build/org.hackystat.sensor.eclipse-Build.zip" dest="${basedir}/build/I.Build/"/>
     
+    <property name="version" value="8.0.923"/>
     <mkdir dir="${basedir}/build/dist"/>
-    <zip destfile="${basedir}/build/dist/hackystat-sensor-eclipse.zip">
+    <zip destfile="${basedir}/build/dist/hackystat-sensor-eclipse-${version}.zip">
         <fileset dir="${basedir}/build/I.Build/org.hackystat.sensor.eclipse"/>
     </zip>
  </target>
