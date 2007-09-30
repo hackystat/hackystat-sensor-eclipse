@@ -4,6 +4,15 @@
   <!-- Always make environment variables available with the "env." prefix. --> 
   <property environment="env"/> 
   
+  <!-- Basic properties for this system. --> 
+  <property name="system.name" value="hackystat-sensorbase-uh" />
+  <property name="majorVersionNumber" value="8" />
+  <property name="minorVersionNumber" value="0" />
+  <tstamp>
+    <format property="DAYSTAMP" pattern="Mdd" />
+  </tstamp>
+  <property name="version" value="${majorVersionNumber}.${minorVersionNumber}.${DAYSTAMP}" />
+  
   <target name="build">
     
     <echo message="Base dir : ${basedir}"/>
@@ -31,16 +40,15 @@
          numbers are from the Eclipse version you use. Be sure to change them if necessary. 
       -->
     <echo message="Launching the headless build."/>
-    <java jar="${env.ECLIPSE_HOME}/plugins/org.eclipse.equinox.launcher_1.0.0.v20070606.jar" fork="true">
+    <java jar="${env.ECLIPSE_HOME}/plugins/org.eclipse.equinox.launcher_1.0.1.R33x_v20070828.jar" fork="true">
       <arg line="-application org.eclipse.ant.core.antRunner"/>
-      <arg line="-buildfile ${env.ECLIPSE_HOME}/plugins/org.eclipse.pde.build_3.3.0.v20070612/scripts/build.xml"/>
+      <arg line="-buildfile ${env.ECLIPSE_HOME}/plugins/org.eclipse.pde.build_3.3.1.v20070828/scripts/build.xml"/>
       <jvmarg value="-DbaseLocation=${env.ECLIPSE_HOME}"/>
       <jvmarg value="-DbuildDirectory=${basedir}/build"/>
     </java>
     
     <unzip src="${basedir}/build/I.Build/org.hackystat.sensor.eclipse-Build.zip" dest="${basedir}/build/I.Build/"/>
     
-    <property name="version" value="8.0.923"/>
     <mkdir dir="${basedir}/build/dist"/>
     <zip destfile="${basedir}/build/dist/hackystat-sensor-eclipse-${version}.zip">
         <fileset dir="${basedir}/build/I.Build/org.hackystat.sensor.eclipse"/>
