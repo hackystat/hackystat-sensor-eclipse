@@ -9,7 +9,7 @@
     <unzip src="${basedir}/build/I.Build/org.hackystat.sensor.eclipse-Build.zip" dest="${basedir}/build/I.Build/"/>
     
     <mkdir dir="${basedir}/build/dist"/>
-    <zip destfile="${basedir}/build/dist/hackystat-sensor-eclipse-${version}.zip">
+    <zip destfile="${basedir}/hackystat-sensor-eclipse.zip">
         <fileset dir="${basedir}/build/I.Build/org.hackystat.sensor.eclipse"/>
     </zip>
   </target>
