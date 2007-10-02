@@ -19,7 +19,6 @@ import org.eclipse.jdt.core.dom.TypeDeclaration;
  * reported to assist Test-Driven Development study.
  * 
  * @author Hongbing Kou
- * @version $Id: JavaStatementMeter.java,v 1.1.1.1 2005/10/20 23:56:56 johnson Exp $
  */
 public class JavaStatementMeter extends ASTVisitor {
   /** Name of this compilation unit. */
@@ -100,13 +99,7 @@ public class JavaStatementMeter extends ASTVisitor {
           // MethodInvocation is one kind of expression statement.
           if (stmt instanceof ExpressionStatement) {
             ExpressionStatement estmt = (ExpressionStatement) stmt;
-            if (estmt.getExpression() instanceof MethodInvocation) {
-              MethodInvocation mi = (MethodInvocation) estmt.getExpression();
-              // Increment number of test assertions.
-              if (mi.getName() != null && mi.getName().getIdentifier().startsWith("assert")) {
-                this.numOfTestAssertions++;
-              }
-            }
+            checkAssertions(estmt);
           }
         }
       }
@@ -115,7 +108,21 @@ public class JavaStatementMeter extends ASTVisitor {
     //No need to visit child nodes anymore.
     return false;
   }
-  
+
+  /**
+   * Check expression statement for test assertions.
+   * 
+   * @param estmt Expression statements.
+   */
+  private void checkAssertions(ExpressionStatement estmt) {
+    if (estmt.getExpression() instanceof MethodInvocation) {
+      MethodInvocation mi = (MethodInvocation) estmt.getExpression();
+      // Increment number of test assertions.
+      if (mi.getName() != null && mi.getName().getIdentifier().startsWith("assert")) {
+        this.numOfTestAssertions++;
+      }
+    }
+  }
   /**
    * Gets number of methods.
    * 
@@ -126,7 +133,7 @@ public class JavaStatementMeter extends ASTVisitor {
   }
   
   /**
-   * Gets number of statemetns.
+   * Gets number of statements.
    * 
    * @return Number of statements.
    */
@@ -167,15 +174,14 @@ public class JavaStatementMeter extends ASTVisitor {
    * @return Metrics value string. 
    */
   public String toString() {
-    StringBuffer buf = new StringBuffer();
-    buf.append("*****  " + this.name + "   *****\n");
-    buf.append("Methods     : " + this.numOfMethods + "\n");
-    buf.append("Statements  : " + this.numOfStatements);
+    StringBuffer buf = new StringBuffer(200);
+    buf.append("*****  ").append(this.name).append("   *****\nMethods     : ")
+    .append(this.numOfMethods).append("\nStatements  : ").append(this.numOfStatements);
         
     // Appends test info if there is any.
     if (this.hasTest()) {
-       buf.append("\nTests       : " + this.numOfTestMethods);
-       buf.append("\nAssertions  : " + this.numOfTestAssertions);
+       buf.append("\nTests       : ").append(this.numOfTestMethods);
+       buf.append("\nAssertions  : ").append(this.numOfTestAssertions);
     }
     
     return buf.toString();

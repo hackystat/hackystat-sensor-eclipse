@@ -30,9 +30,7 @@ import org.xml.sax.SAXException;
  * bring update info dialog if the new version is available. Supoorts for both 2x and 3x stream
  * version information.
  * 
- * @author Takuya Yamashita
- * @version $Id: VersionCheck.java,v 1.1.1.1 2005/10/20 23:56:56 johnson Exp $
- *
+ * @author Hongbing Kou
  */
 public class VersionCheck {
   /** Bundle object. */
@@ -82,53 +80,55 @@ public class VersionCheck {
    * @param messages the messages to be shown in the update window page. 
    */
   public void processUpdateDialog(String updateUrl, final String title, final String[] messages) {
-    if (updateUrl != null) {
-      try { // Gets current version info.
-        Version localVerIdentifier = getLocalPluginVersionIdentifier();
-        String localVerString = localVerIdentifier.toString();
-        final String localVersionId = localVerString.substring(0, localVerString.length() - 2);
-        final String qualifierVersion = localVerIdentifier.getQualifier();
+    if (updateUrl == null) {
+      return;
+    }
+    
+    try { // Gets current version info.
+      Version localVerIdentifier = getLocalPluginVersionIdentifier();
+      String localVerString = localVerIdentifier.toString();
+      final String localVersionId = localVerString.substring(0, localVerString.length() - 2);
+      final String qualifierVersion = localVerIdentifier.getQualifier();
 
-        // Gets new version info.
-        URL url = new URL(updateUrl);
-        Document serverDocument = parseXml(url.openStream());
-        final Version serverVerIdentifier = getVersionIdentifier(serverDocument, 
-            qualifierVersion);
-        // Check if current version is not new version, then show pop up udate dialog.
-        if (serverVerIdentifier != null && serverVerIdentifier.compareTo(localVerIdentifier) > 0) {
-          String serverVerString = serverVerIdentifier.toString();
-          final String  serverVerId = serverVerString.substring(0, serverVerString.length() - 2);
-          
-          IWorkbench workbench = EclipseSensorPlugin.getInstance().getWorkbench();
-          final IWorkbenchWindow window = workbench.getWorkbenchWindows()[0];
-          final String HACKYSTAT_ICON = EclipseSensorI18n.getString("VersionCheck.hackystatIcon");
-          Display.getDefault().asyncExec(new Runnable() {
-            public void run() {
-              MessageDialog dialog = new MessageDialog(window.getShell(),
-              title,
-              createImageDescriptor(HACKYSTAT_ICON).createImage(), 
-              messages[0] + localVersionId + messages[1] + serverVerId + 
-                messages[2],
-              MessageDialog.QUESTION,
-              new String[] {
-                EclipseSensorI18n.getString("VersionCheck.messageDialogButtonUpdate"),
-                EclipseSensorI18n.getString("VersionCheck.messageDialogButtonCancel")
-              },
-              0);
-                
-              int result = dialog.open();
-              if (result == 0) {
-                openNewUpdatesWizard();
-              }
+      // Gets new version info.
+      URL url = new URL(updateUrl);
+      Document serverDocument = parseXml(url.openStream());
+      final Version serverVerIdentifier = getVersionIdentifier(serverDocument, 
+          qualifierVersion);
+      // Check if current version is not new version, then show pop up udate dialog.
+      if (serverVerIdentifier != null && serverVerIdentifier.compareTo(localVerIdentifier) > 0) {
+        String serverVerString = serverVerIdentifier.toString();
+        final String  serverVerId = serverVerString.substring(0, serverVerString.length() - 2);
+        
+        IWorkbench workbench = EclipseSensorPlugin.getInstance().getWorkbench();
+        final IWorkbenchWindow window = workbench.getWorkbenchWindows()[0];
+        final String HACKYSTAT_ICON = EclipseSensorI18n.getString("VersionCheck.hackystatIcon");
+        Display.getDefault().asyncExec(new Runnable() {
+          public void run() {
+            MessageDialog dialog = new MessageDialog(window.getShell(),
+            title,
+            createImageDescriptor(HACKYSTAT_ICON).createImage(), 
+            messages[0] + localVersionId + messages[1] + serverVerId + 
+              messages[2],
+            MessageDialog.QUESTION,
+            new String[] {
+              EclipseSensorI18n.getString("VersionCheck.messageDialogButtonUpdate"),
+              EclipseSensorI18n.getString("VersionCheck.messageDialogButtonCancel")
+            },
+            0);
+              
+            int result = dialog.open();
+            if (result == 0) {
+              openNewUpdatesWizard();
             }
-           });
-        }
+          }
+         });
       }
-      catch (Exception e) {
-        e.printStackTrace();
-        EclipseSensorPlugin.getInstance().log(e);
-        //couldn't parse xml file, or even though xml is parsed, version attribute is not found.
-      }
+    }
+    catch (Exception e) {
+      e.printStackTrace();
+      EclipseSensorPlugin.getInstance().log(e);
+      //couldn't parse xml file, or even though xml is parsed, version attribute is not found.
     }
   }
   
@@ -201,12 +201,13 @@ public class VersionCheck {
     }
     catch (SAXException e) {
       // A parsing error occurred; the xml input is not valid
+      EclipseSensorPlugin.getInstance().log(e);
     }
     catch (ParserConfigurationException e) {
-      // ignored.
+      EclipseSensorPlugin.getInstance().log(e);
     }
     catch (IOException e) {
-      // ignored.
+      EclipseSensorPlugin.getInstance().log(e);
     }
     return null;
   }

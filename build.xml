@@ -1,0 +1,112 @@
+<project name="build" default="compile">
+  <description>
+  The basic build file for the Hackystat Eclipse headless build. Note that the Eclipse
+  PDE can build the Eclipse sensor using the plugin editor.
+  </description>
+  
+  <!-- Always make environment variables available with the "env." prefix. --> 
+  <property environment="env"/> 
+
+  <!-- Make sure we're running a Java 5 or better. --> 
+  <condition property="java.5.available">  
+    <or>
+      <contains string="${java.version}" substring="1.5" /> 
+      <contains string="${java.version}" substring="1.6" /> 
+    </or> 
+  </condition>   
+  <fail message="This package requires Java 5 or 6." unless="java.5.available"/> 
+
+   <!-- Make sure we're running Ant 1.7 . --> 
+   <condition property="ant.1.7.available"> 
+     <contains string="${ant.version}" substring="1.7" />
+   </condition>  
+   <fail message="This package requires Ant 1.7." unless="ant.1.7.available"/>
+    
+  <!-- Make sure that a compatible version of JUnit is installed. --> 
+  <!-- You can override the version. For example: 'ant -Djunit.version=4.1 -f junit.build.xml' -->
+  <property name="junit.version" value="4.3.1"/>
+  <property name="junit.jar" location="${env.JUNIT_HOME}/junit-${junit.version}.jar"/>
+  <available file="${junit.jar}" type="file" property="junit.available"/>
+  <fail message="This package requires JUNIT_HOME to be defined and ${junit.jar} available" unless="junit.available"/>
+
+  <!-- Basic properties for this system. --> 
+  <property name="system.name" value="hackystat-sensor-eclipse" />
+  <property name="majorVersionNumber" value="8" />
+  <property name="minorVersionNumber" value="0" />
+  <tstamp>
+    <format property="DAYSTAMP" pattern="Mdd" />
+  </tstamp>
+  <property name="version" value="${majorVersionNumber}.${minorVersionNumber}.${DAYSTAMP}" />
+
+  <!-- Hackystat sensor configuration information. -->
+  <property name="hackystat.verbose.mode" value="true" />
+
+  <!-- Basic directory structure. --> 
+  <property name="src.dir" location="${basedir}/plugin/src" />
+  <property name="lib.dir" location="${basedir}/plugin/lib" />
+  <property name="build.dir" location="${basedir}/build" />
+
+  <!-- The compile classpath is useful to many tools. -->
+  <path id="compile.classpath">
+    <fileset file="${env.JUNIT_HOME}/junit-${junit.version}.jar"/>
+    <fileset file="${env.FINDBUGS_HOME}/lib/annotations.jar"/> 
+  </path> 
+
+  <target name="compile" description="Compiles the code.">
+    <!-- Verify that ECLIPSE_HOME is set. -->
+    <available file="${env.ECLIPSE_HOME}" property="eclipse.available"/>
+    <fail unless="eclipse.available"  message="Error: ECLIPSE_HOME not set. Eclipse 3.3 is required."/>
+
+  	<!-- Verify that ECLIPSE_PLUGIN_EQUINOX is set. -->
+    <available file="${env.ECLIPSE_HOME}/plugins/${env.ECLIPSE_PLUGIN_EQUINOX}" property="equinox.available"/>
+    <fail unless="equinox.available"  message="Error: ECLIPSE_PLUGIN_EQUINOX or ECLIPSE_HOME not set. The plugin is typically a jar file such as org.eclipse.equinox.launcher_1.0.1.R33x_v20070828.jar."/>
+
+  	<!-- Verify that ECLIPSE_PLUGIN_PDE_BUILD is set. -->
+    <available file="${env.ECLIPSE_HOME}/plugins/${env.ECLIPSE_PLUGIN_PDE_BUILD}/scripts/build.xml" property="pde.build.available"/>
+    <fail unless="pde.build.available"  message="Error: ECLIPSE_PLUGIN_PDE_BUILD or ECLIPSE_HOME not set. The plugin is located in the ECLIPSE_HOME/plugins. Its name is typically org.eclipse.pde.build_3.3.0.v20070612."/>
+  	
+  	<!-- 
+      Build the feature and plugin in headless mode. Please be cautious that the version 
+      numbers are from the Eclipse version you use. Be sure to change them if necessary. 
+      -->
+  	<!-- Cleans up the build directory if it exists. -->
+    <delete dir="${basedir}/build" failonerror="false"/>
+    
+    <property name="featureDir" value="${basedir}/build/features/org.hackystat.sensor.eclipse"/>
+    <property name="pluginDir"  value="${basedir}/build/plugins/org.hackystat.sensor.eclipse"/>
+    
+    <!-- Preparing feature -->
+    <mkdir dir="${featureDir}"/>
+    <copy todir="${featureDir}">
+        <fileset dir="${basedir}/feature"/>
+    </copy>
+    
+    <!-- Preparing plugin -->
+    <mkdir dir="${pluginDir}"/>
+    <copy todir="${pluginDir}">
+        <fileset dir="${basedir}/plugin"/>
+    </copy>
+
+  	<echo message="Launching the headless build."/>
+    <java jar="${env.ECLIPSE_HOME}/plugins/${env.ECLIPSE_PLUGIN_EQUINOX}" fork="true">
+      <arg line="-application org.eclipse.ant.core.antRunner"/>
+      <arg line="-buildfile ${env.ECLIPSE_HOME}/plugins/${env.ECLIPSE_PLUGIN_PDE_BUILD}/scripts/build.xml"/>
+      <jvmarg value="-DbaseLocation=${env.ECLIPSE_HOME}"/>
+      <jvmarg value="-DbuildDirectory=${basedir}/build"/>
+    </java>
+  </target>
+
+  <target name="clean" description="Delete build/ directory.">
+    <delete dir="${build.dir}"/> 
+  </target>
+
+  <target name="convertLineEndings" description="Makes line endings compatible with host platform.">
+    <fixcrlf srcdir="${basedir}" includes="*.build.xml"/>
+  </target>
+ 
+</project>
+
+
+
+
+

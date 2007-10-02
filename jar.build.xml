@@ -1,0 +1,16 @@
+<project name="jar" default="jar">
+  <description>
+  Provides the target for building a jar file of the SensorBase.
+  </description>
+
+  <import file="build.xml"/>
+ 
+  <target name="jar" depends="compile">   
+    <unzip src="${basedir}/build/I.Build/org.hackystat.sensor.eclipse-Build.zip" dest="${basedir}/build/I.Build/"/>
+    
+    <mkdir dir="${basedir}/build/dist"/>
+    <zip destfile="${basedir}/build/dist/hackystat-sensor-eclipse-${version}.zip">
+        <fileset dir="${basedir}/build/I.Build/org.hackystat.sensor.eclipse"/>
+    </zip>
+  </target>
+</project>

@@ -1,64 +1,24 @@
-<project name="EclipseSensorHeadless" default="build" basedir=".">
-  <!-- Headless build the Eclipse sensor -->
-  
-  <!-- Always make environment variables available with the "env." prefix. --> 
-  <property environment="env"/> 
-  
-  <!-- Basic properties for this system. --> 
-  <property name="system.name" value="hackystat-sensorbase-uh" />
-  <property name="majorVersionNumber" value="8" />
-  <property name="minorVersionNumber" value="0" />
-  <tstamp>
-    <format property="DAYSTAMP" pattern="Mdd" />
-  </tstamp>
-  <property name="version" value="${majorVersionNumber}.${minorVersionNumber}.${DAYSTAMP}" />
-  
-  <target name="build">
-    
-    <echo message="Base dir : ${basedir}"/>
-    
-    <!-- Cleans up the build directory if it exists. -->
-    <delete dir="${basedir}/build" failonerror="false"/>
-    
-    <property name="featureDir" value="${basedir}/build/features/org.hackystat.sensor.eclipse"/>
-    <property name="pluginDir"  value="${basedir}/build/plugins/org.hackystat.sensor.eclipse"/>
-    
-    <!-- Preparing feature -->
-    <mkdir dir="${featureDir}"/>
-    <copy todir="${featureDir}">
-        <fileset dir="${basedir}/feature"/>
-    </copy>
-    
-    <!-- Preparing plugin -->
-    <mkdir dir="${pluginDir}"/>
-    <copy todir="${pluginDir}">
-        <fileset dir="${basedir}/plugin"/>
-    </copy>
- 
-    <!-- 
-         Build the feature and plugin in headless mode. Please be cautious that the version 
-         numbers are from the Eclipse version you use. Be sure to change them if necessary. 
-      -->
-    <echo message="Launching the headless build."/>
-    <java jar="${env.ECLIPSE_HOME}/plugins/org.eclipse.equinox.launcher_1.0.1.R33x_v20070828.jar" fork="true">
-      <arg line="-application org.eclipse.ant.core.antRunner"/>
-      <arg line="-buildfile ${env.ECLIPSE_HOME}/plugins/org.eclipse.pde.build_3.3.1.v20070828/scripts/build.xml"/>
-      <jvmarg value="-DbaseLocation=${env.ECLIPSE_HOME}"/>
-      <jvmarg value="-DbuildDirectory=${basedir}/build"/>
-    </java>
-    
-    <unzip src="${basedir}/build/I.Build/org.hackystat.sensor.eclipse-Build.zip" dest="${basedir}/build/I.Build/"/>
-    
-    <mkdir dir="${basedir}/build/dist"/>
-    <zip destfile="${basedir}/build/dist/hackystat-sensor-eclipse-${version}.zip">
-        <fileset dir="${basedir}/build/I.Build/org.hackystat.sensor.eclipse"/>
-    </zip>
- </target>
-   
+<project name="eclipsesensor.dist" default="dist" basedir=".">
+  <import file="build.xml"/>
+  <import file="jar.build.xml"/>   
 
- <target name="clean">
-    <!-- Cleans up the build directory if it exists. -->
-    <delete dir="${basedir}/build" failonerror="false"/>
- </target>
+  <target name="dist" depends="clean, compile, jar" description="Create a distribution package.">
+    <!-- Define the directories and distribution name -->
+    <property name="dist.dir" location="${build.dir}/dist" />
+    <property name="dist.tmp.dir" location="${basedir}/dist-tmp" />
+    <property name="dist.name" value="${system.name}-${version}" />
+
+    <!-- Copy distribution files to the tmp dir. -->
+ 
+    <mkdir dir="${dist.tmp.dir}/${dist.name}" />
+    <copy todir="${dist.tmp.dir}/${dist.name}">
+      <fileset dir="${basedir}" excludes="javadoc/**, dist-tmp/**, bin/**, **/.svn/*, **/*~, tmp/**, build/**, plugin/build/**,plugin/build.xml,plugin/javaCompiler.sensor.eclipse.jar.args" />
+    </copy>
+
+    <!-- Create the zip distribution of this system, and then delete the tmp dir. -->
+    <mkdir dir="${dist.dir}" />
+    <zip zipfile="${dist.dir}/${system.name}-${version}.zip" basedir="${dist.tmp.dir}" />
+    <delete dir="${dist.tmp.dir}"/>   
+  </target>
 </project>
 

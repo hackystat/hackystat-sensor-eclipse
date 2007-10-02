@@ -78,9 +78,9 @@ public class BreakPointerSensor implements IBreakpointListener {
    * @return Message string.
    */
   private String constructMessage(URI fileResource, String type, String lineno) {
-    StringBuffer message = new StringBuffer("Debug");
-    message.append(" : ").append(this.eclipseSensor.extractFileName(fileResource));
-    message.append(" [").append(type).append(",").append(lineno).append("]");
+    StringBuffer message = new StringBuffer();
+    message.append("Debug : ").append(this.eclipseSensor.extractFileName(fileResource));
+    message.append(" [").append(type).append(',').append(lineno).append(']');
     
     return message.toString();
   }
@@ -93,6 +93,7 @@ public class BreakPointerSensor implements IBreakpointListener {
    * @param delta Delta change.
    */
   public void breakpointChanged(IBreakpoint breakpoint, IMarkerDelta delta) {
+    // We don't need to do anything with changed breakpoint.
   }
 
   /**
@@ -125,7 +126,7 @@ public class BreakPointerSensor implements IBreakpointListener {
     catch (CoreException e) {
       // Exception can be thrown when there is no associated line number
       // we do not need to worry about this in our sensor. 
-      //EclipseSensorPlugin.getInstance().log(e);
+      EclipseSensorPlugin.getInstance().log(e);
     }
   }
 }

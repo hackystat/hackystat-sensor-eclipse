@@ -86,6 +86,8 @@ public class SensorPreferencePage extends FieldEditorPreferencePage
   
   /**
    * Perform okay to validate sensorbase/user/password.
+   * 
+   * @return True if inputs are valid.
    */
   public boolean performOk() {
     //IPreferenceStore store = super.getPreferenceStore();
@@ -105,7 +107,7 @@ public class SensorPreferencePage extends FieldEditorPreferencePage
     }
     
     EclipseSensor sensor = EclipseSensor.getInstance();
-    // Stop the sensor temporarily to let is send out previously collected sensor data.
+    // Stop the sensor temporarily to let it send out previously collected sensor data.
     sensor.stop();
     
     // Ask sensor to enable the new settings.

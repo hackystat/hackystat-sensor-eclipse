@@ -94,9 +94,10 @@ public class BuildErrorSensor {
             keyValueMap.put("Success", "false");
             keyValueMap.put("Error", message);
             
-            StringBuffer displayMessage = new StringBuffer("Build Error");
-            displayMessage.append(" : ").append(this.sensor.extractFileName(fileResource));
-            displayMessage.append(" [").append(message).append("]");
+            StringBuffer displayMessage = new StringBuffer();
+            displayMessage.append("Build Error : ")
+                          .append(this.sensor.extractFileName(fileResource))
+                          .append(" [").append(message).append(']');
             
             String data = fileName + "#" + severity + 
                           "#" + (String) markerDelta.getAttribute("message");

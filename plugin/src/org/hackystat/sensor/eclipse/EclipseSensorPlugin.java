@@ -42,7 +42,7 @@ public class EclipseSensorPlugin extends AbstractUIPlugin implements BundleActiv
    */
   public EclipseSensorPlugin() {
     super();
-    plugin = this;
+    EclipseSensorPlugin.plugin = this;
   }
   
   /**
@@ -112,7 +112,7 @@ public class EclipseSensorPlugin extends AbstractUIPlugin implements BundleActiv
      * Hackystat sensor update thread.
      * 
      * @param bundle Plugin bundle.
-     * @param store Sensor preference store.
+     * @param updateSite Update site.
      */
     SensorUpdateThread(Bundle bundle, String updateSite) {
       this.setName("SensorUpdateThread");

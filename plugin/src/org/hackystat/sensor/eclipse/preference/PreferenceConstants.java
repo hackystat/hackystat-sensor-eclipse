@@ -4,12 +4,16 @@ package org.hackystat.sensor.eclipse.preference;
  * Constant definitions for plug-in preferences.
  * 
  * @author Hongbing Kou
- * @version $Id$
  */
 public final class PreferenceConstants {
-  public final static String P_SENSORBASE = "SensorBase";
-  public final static String P_EMAIL= "Email";
-  public final static String P_PASSWORD= "Password";
-  public final static String P_UPDATE_SITE = "UpdateSite";
-  public final static String P_ENABLE_AUTOUPDATE= "EnableAutoUpdate"; 
+  /** Sensor base */
+  public static final String P_SENSORBASE = "SensorBase";
+  /** User email */
+  public static final String P_EMAIL = "Email";
+  /** Password to the sensorbase. */
+  public static final String P_PASSWORD = "Password";
+  /** Sensor update site. */
+  public static final String P_UPDATE_SITE = "UpdateSite";
+  /** Whether sensor auto update is allowed. */
+  public static final String P_ENABLE_AUTOUPDATE = "EnableAutoUpdate"; 
 }

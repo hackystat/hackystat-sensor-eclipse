@@ -19,7 +19,6 @@ import org.hackystat.sensorshell.SensorShell;
  * the collected sensor data are shown on the status bar for monitoring. 
  * 
  * @author Hongbing Kou
- * @version $Id$
  */
 public class SensorShellWrapper {
   /** The sensor shell instance. */
@@ -34,9 +33,10 @@ public class SensorShellWrapper {
   }
   
   /**
-   * Add key-value pairs of metrics to sensorshell to be sent to the Hackystat server automatically. 
-   *
-   * @param metrics Key-value pairs of metrics.
+   * Add key-value pairs of metrics to sensorshell to be sent to the Hackystat server 
+   * automatically.
+   * 
+   * @param keyValuePairs Key-value pairs of metrics.
    * @param message A message to appear on the Eclipse's status bar. 
    */
   public void add(Map<String, String> keyValuePairs, String message) {

@@ -16,7 +16,6 @@ import org.hackystat.sensor.eclipse.EclipseSensor;
  * Note that this class extend the extension point defined in the JUnit plugin.
  *
  * @author Hongbing Kou 
- * @version $Id$
  */
 public class TestRunnerSensor implements ITestRunListener {
   /** The EclipseSensor. */
@@ -40,7 +39,6 @@ public class TestRunnerSensor implements ITestRunListener {
    * Constructor for the EclipseJUnitListener object. Adds this lister instance to the
    * <code>org.eclipse.jdt.internal.junit.ui.JUnitPlugin</code> instance.
    *
-   * @param sensor The EclipseSensor instance.
    */
   public TestRunnerSensor() {
     this(EclipseSensor.getInstance());

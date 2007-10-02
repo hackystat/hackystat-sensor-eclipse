@@ -44,14 +44,14 @@ public class DebugSensor implements IDebugEventSetListener {
         DebugEvent event = events[i];
         String debugActivity = translateEventKind(event);
         if (debugActivity != null) {
-          StringBuffer displayMessage = new StringBuffer("Debug");
+          StringBuffer displayMessage = new StringBuffer();
           
           Map<String, String> keyValueMap = new HashMap<String, String>();
           keyValueMap.put("Subtype", debugActivity);
           
-          displayMessage.append(" : ").append(
+          displayMessage.append("Debug : ").append(
             this.eclipseSensor.extractFileName(this.debuggedFile));
-          displayMessage.append(" [").append(debugActivity).append("]");
+          displayMessage.append(" [").append(debugActivity).append(']');
           
           this.eclipseSensor.addDevEvent("Debug", this.debuggedFile, 
             keyValueMap, displayMessage.toString());
@@ -97,6 +97,8 @@ public class DebugSensor implements IDebugEventSetListener {
         case DebugEvent.STEP_OVER:
           debugType = "Step over";
           break;
+        default:
+          debugType = "Unknown";
       }
     }
     

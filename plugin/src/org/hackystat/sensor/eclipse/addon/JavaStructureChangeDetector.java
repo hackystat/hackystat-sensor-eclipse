@@ -13,6 +13,7 @@ import org.eclipse.jdt.core.IElementChangedListener;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IJavaElementDelta;
 import org.hackystat.sensor.eclipse.EclipseSensor;
+import org.hackystat.sensor.eclipse.EclipseSensorConstants;
 
 /**
  * Listens to the java element change events to get incremental work on java objects and collect 
@@ -70,10 +71,10 @@ public class JavaStructureChangeDetector implements IElementChangedListener {
     }
     // Addition, deletion, renaming activity.
     else if (additions.size() == 1 || deletions.size() == 1) {
-      if (deletions.size() == 0) {
+      if (deletions.isEmpty()) {
         processUnary(javaFile, "Add", (IJavaElementDelta) additions.get(0));        
       }
-      else if (additions.size() == 0) {
+      else if (additions.isEmpty()) {
         processUnary(javaFile, "Remove", (IJavaElementDelta) deletions.get(0));
       }
       else if (deletions.size() == 1) {
@@ -124,12 +125,13 @@ public class JavaStructureChangeDetector implements IElementChangedListener {
       return;  
     }
     
-    if ("Class".equals(type)) {
-      javaFile = element.getResource().getLocation();
+    IPath classFileName = javaFile;
+    if (EclipseSensorConstants.CLASS.equals(type)) {
+      classFileName = element.getResource().getLocation();
     }  
     
     // Only deal with java file.
-    if (!"java".equals(javaFile.getFileExtension())) {
+    if (!EclipseSensorConstants.JAVA.equals(classFileName.getFileExtension())) {
       return;
     }
     
@@ -139,7 +141,7 @@ public class JavaStructureChangeDetector implements IElementChangedListener {
       Map<String, String> devEventPMap = new HashMap<String, String>();
       devEventPMap.put("Subtype", "ProgramUnit");
       devEventPMap.put("Subsubtype", op);
-      devEventPMap.put("Language", "java");
+      devEventPMap.put("Language", EclipseSensorConstants.JAVA);
       devEventPMap.put("Unit-Type", type);
       devEventPMap.put("Unit-Name", name);
       
@@ -160,15 +162,16 @@ public class JavaStructureChangeDetector implements IElementChangedListener {
       IJavaElementDelta toDelta) {
     String typeName = retrieveType(toDelta.getElement());
     
-    if ("Class".equals(typeName)) {
-      javaFile = fromDelta.getElement().getResource().getLocation();
+    IPath classFileName = javaFile;
+    if (EclipseSensorConstants.CLASS.equals(typeName)) {
+      classFileName = fromDelta.getElement().getResource().getLocation();
     }
     else if ("Package".equals(typeName)) {
-      javaFile = fromDelta.getElement().getResource().getLocation();
+      classFileName = fromDelta.getElement().getResource().getLocation();
     }
 
     // Only deal with java file.
-    if (!"java".equals(javaFile.getFileExtension())) {
+    if (!EclipseSensorConstants.JAVA.equals(classFileName.getFileExtension())) {
       return;
     }
     
@@ -177,13 +180,13 @@ public class JavaStructureChangeDetector implements IElementChangedListener {
     
     if (fromName != null && !"".equals(fromName) && toName != null && !"".equals(toName)) {
       StringBuffer msgBuf = new StringBuffer();
-      msgBuf.append("Refactor : ");
-      msgBuf.append("Rename#" + typeName + "#" + fromName + " -> " + toName);
+      msgBuf.append("Refactor : Rename#").append(typeName).append('#').append(fromName)
+            .append(" -> ").append(toName);
 
       Map<String, String> devEventPMap = new HashMap<String, String>();
       devEventPMap.put("Subtype", "ProgramUnit");
       devEventPMap.put("Subsubtype", "Rename");
-      devEventPMap.put("Language", "java");
+      devEventPMap.put("Language", EclipseSensorConstants.JAVA);
       devEventPMap.put("Unit-Type", typeName);
       devEventPMap.put("From-Unit-Name", fromName);
       devEventPMap.put("To-Unit-Name", toName);
@@ -206,7 +209,7 @@ public class JavaStructureChangeDetector implements IElementChangedListener {
     String typeName = retrieveType(element);
     
     // Only deal with java file.
-    if (!"java".equals(javaFile.getFileExtension())) {
+    if (!EclipseSensorConstants.JAVA.equals(javaFile.getFileExtension())) {
       return;
     }
     
@@ -218,13 +221,13 @@ public class JavaStructureChangeDetector implements IElementChangedListener {
     // server as activity data.
     if (fromName != null && !"".equals(fromName) && toName != null && !"".equals(toName)) {
       StringBuffer msgBuf = new StringBuffer();
-      msgBuf.append("Refactor : ");
-      msgBuf.append("Move#" + typeName + "#" + name + "#" + fromName + " -> " + toName);
+      msgBuf.append("Refactor : Move#").append(typeName).append('#').append(name).append('#').
+             append(fromName).append(" -> ").append(toName);
       
       Map<String, String> devEventRenameMap = new HashMap<String, String>();
       devEventRenameMap.put("Subtype", "ProgramUnit");
       devEventRenameMap.put("Subsubtype", "Move");
-      devEventRenameMap.put("Language", "java");
+      devEventRenameMap.put("Language", EclipseSensorConstants.JAVA);
       devEventRenameMap.put("Unit-Type", typeName);
       // return-type not available
       devEventRenameMap.put("From-Unit-Name", fromName);
@@ -250,15 +253,18 @@ public class JavaStructureChangeDetector implements IElementChangedListener {
       case IJavaElement.METHOD:
         return "Method";
       case IJavaElement.IMPORT_DECLARATION:
-      case IJavaElement.IMPORT_CONTAINER:
+        return "Import";
+            case IJavaElement.IMPORT_CONTAINER:
         return "Import";
       case IJavaElement.COMPILATION_UNIT:
+        return EclipseSensorConstants.CLASS;
       case IJavaElement.JAVA_PROJECT:
-        return "Class";
+        return EclipseSensorConstants.CLASS;
       case IJavaElement.PACKAGE_FRAGMENT:
         return "Package";
+      default:
+        return null;
     }
-    return null;
   }
   
   /**
