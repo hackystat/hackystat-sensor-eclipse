@@ -52,19 +52,23 @@
     <fileset file="${env.FINDBUGS_HOME}/lib/annotations.jar"/> 
   </path> 
 
-  <target name="compile" description="Compiles the code.">
-    <!-- Verify that ECLIPSE_HOME is set. -->
-    <available file="${env.ECLIPSE_HOME}" property="eclipse.available"/>
-    <fail unless="eclipse.available"  message="Error: ECLIPSE_HOME not set. Eclipse 3.3 is required."/>
+  <!-- Verify that ECLIPSE_HOME is set. -->
+  <available file="${env.ECLIPSE_HOME}" property="eclipse.available"/>
+  <fail unless="eclipse.available"  message="Error: ECLIPSE_HOME not set. Eclipse 3.3 is required."/>
+	
+  <!-- Verify that ECLIPSE_PLUGIN_EQUINOX is set. -->
+  <available file="${env.ECLIPSE_HOME}/plugins/${env.ECLIPSE_PLUGIN_EQUINOX}" property="equinox.available"/>
+  <fail unless="equinox.available"  message="Error: ECLIPSE_PLUGIN_EQUINOX or ECLIPSE_HOME not set. The plugin is typically a jar file such as org.eclipse.equinox.launcher_1.0.1.R33x_v20070828.jar."/>
+	
+  <!-- Verify that ECLIPSE_PLUGIN_PDE_BUILD is set. -->
+  <available file="${env.ECLIPSE_HOME}/plugins/${env.ECLIPSE_PLUGIN_PDE_BUILD}/scripts/build.xml" property="pde.build.available"/>
+  <fail unless="pde.build.available"  message="Error: ECLIPSE_PLUGIN_PDE_BUILD or ECLIPSE_HOME not set. The plugin is located in the ECLIPSE_HOME/plugins. Its name is typically org.eclipse.pde.build_3.3.0.v20070612."/>
+	
+  <!-- Make sure that the SensorShell is available . --> 
+  <available file="${env.HACKYSTAT_SENSORSHELL_HOME}/sensorshell.jar" type="file" property="hackystat.sensorshell.available"/>
+  <fail message="This package requires the Hackystat SensorShell to be installed and HACKYSTAT_SENSORSHELL_HOME defined" unless="hackystat.sensorshell.available"/>   
 
-  	<!-- Verify that ECLIPSE_PLUGIN_EQUINOX is set. -->
-    <available file="${env.ECLIPSE_HOME}/plugins/${env.ECLIPSE_PLUGIN_EQUINOX}" property="equinox.available"/>
-    <fail unless="equinox.available"  message="Error: ECLIPSE_PLUGIN_EQUINOX or ECLIPSE_HOME not set. The plugin is typically a jar file such as org.eclipse.equinox.launcher_1.0.1.R33x_v20070828.jar."/>
-
-  	<!-- Verify that ECLIPSE_PLUGIN_PDE_BUILD is set. -->
-    <available file="${env.ECLIPSE_HOME}/plugins/${env.ECLIPSE_PLUGIN_PDE_BUILD}/scripts/build.xml" property="pde.build.available"/>
-    <fail unless="pde.build.available"  message="Error: ECLIPSE_PLUGIN_PDE_BUILD or ECLIPSE_HOME not set. The plugin is located in the ECLIPSE_HOME/plugins. Its name is typically org.eclipse.pde.build_3.3.0.v20070612."/>
-  	
+  <target name="compile" depends="prep" description="Compiles the code.">
   	<!-- 
       Build the feature and plugin in headless mode. Please be cautious that the version 
       numbers are from the Eclipse version you use. Be sure to change them if necessary. 
@@ -103,7 +107,17 @@
   <target name="convertLineEndings" description="Makes line endings compatible with host platform.">
     <fixcrlf srcdir="${basedir}" includes="*.build.xml"/>
   </target>
- 
+
+  <target name="prep">
+  	<!-- Update version numbers for plugin.xml, feature.xml and site.xml -->
+  	<replaceregexp match="[\d]+\.[\d]+\.[\d]+" replace="${version}" flags="g">
+  	  <fileset dir="${basedir}" 
+  	           includes="plugin/META-INF/MANIFEST.MF,feature/feature.xml,site/site.xml"/>
+    </replaceregexp>	
+  	
+  	<!-- Update sensorshell.jar. -->
+  	<copy todir="${basedir}/plugin/lib" file="${env.HACKYSTAT_SENSORSHELL_HOME}/sensorshell.jar"/>
+  </target>
 </project>
 
 
