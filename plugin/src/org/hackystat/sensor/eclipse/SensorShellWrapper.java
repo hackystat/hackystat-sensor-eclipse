@@ -74,7 +74,7 @@ public class SensorShellWrapper {
    * @param minutes Number of minutes to autosend sensor data. 
    */
   public void setAutoSendInterval(int minutes) {
-    this.shell.setAutoSend(minutes);
+    this.shell.setAutoSendTimeInterval(minutes);
   }
   
   /**
