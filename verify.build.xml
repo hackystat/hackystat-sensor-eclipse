@@ -1,4 +1,4 @@
-<project name="verify" default="verify">
+<project name="verify" default="verify.disable">
   <description>
     Runs junit, pmd, checkstyle, findbugs, and javadoc, failing the build if problems found.
     Invocation: ant -f verify.build.xml
@@ -42,6 +42,8 @@
     
     It also runs the Emma code coverage tool and prints a summary report. 
   </echo>
+	
+  <target name="verify.disable"/>
       
   <target name="verify" 
     depends="clean, compile, checkstyle.tool,  junit.tool, javadoc, findbugs.tool,
