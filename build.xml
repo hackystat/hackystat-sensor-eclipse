@@ -62,7 +62,7 @@
 	
   <!-- Verify that ECLIPSE_PLUGIN_PDE_BUILD is set. -->
   <available file="${env.ECLIPSE_HOME}/plugins/${env.ECLIPSE_PLUGIN_PDE_BUILD}/scripts/build.xml" property="pde.build.available"/>
-  <fail unless="pde.build.available"  message="Error: ECLIPSE_PLUGIN_PDE_BUILD or ECLIPSE_HOME not set. The plugin is located in the ECLIPSE_HOME/plugins. Its name is typically org.eclipse.pde.build_3.3.0.v20070612."/>
+  <fail unless="pde.build.available"  message="Error: Could not find: ${env.ECLIPSE_HOME}/plugins/${env.ECLIPSE_PLUGIN_PDE_BUILD}/scripts/build.xml.  Check to see if ECLIPSE_PLUGIN_PDE_BUILD or ECLIPSE_HOME not set. The plugin is located in the ECLIPSE_HOME/plugins. Its name is typically org.eclipse.pde.build_3.3.0.v20070612."/>
 	
   <!-- Make sure that the SensorShell is available . --> 
   <available file="${env.HACKYSTAT_SENSORSHELL_HOME}/sensorshell.jar" type="file" property="hackystat.sensorshell.available"/>
