@@ -58,7 +58,7 @@
 	
   <!-- Verify that ECLIPSE_PLUGIN_EQUINOX is set. -->
   <available file="${env.ECLIPSE_HOME}/plugins/${env.ECLIPSE_PLUGIN_EQUINOX}" property="equinox.available"/>
-  <fail unless="equinox.available"  message="Error: ECLIPSE_PLUGIN_EQUINOX or ECLIPSE_HOME not set. The plugin is typically a jar file such as org.eclipse.equinox.launcher_1.0.1.R33x_v20070828.jar."/>
+  <fail unless="equinox.available"  message="Error: Could not find ${env.ECLIPSE_HOME}/plugins/${env.ECLIPSE_PLUGIN_EQUINOX}.  ECLIPSE_PLUGIN_EQUINOX or ECLIPSE_HOME not set. The plugin is typically a jar file such as org.eclipse.equinox.launcher_1.0.1.R33x_v20070828.jar."/>
 	
   <!-- Verify that ECLIPSE_PLUGIN_PDE_BUILD is set. -->
   <available file="${env.ECLIPSE_HOME}/plugins/${env.ECLIPSE_PLUGIN_PDE_BUILD}/scripts/build.xml" property="pde.build.available"/>
