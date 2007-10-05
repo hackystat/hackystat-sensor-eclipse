@@ -8,9 +8,24 @@
   <target name="jar" depends="compile">   
     <unzip src="${basedir}/build/I.Build/org.hackystat.sensor.eclipse-Build.zip" dest="${basedir}/build/I.Build/"/>
     
-    <mkdir dir="${basedir}/build/dist"/>
-    <zip destfile="${basedir}/hackystat-sensor-eclipse.zip">
-        <fileset dir="${basedir}/build/I.Build/org.hackystat.sensor.eclipse"/>
-    </zip>
+    <!-- Create the plugin release for the update site -->
+    <jar destfile="${basedir}/site/plugins/org.hackystat.sensor.eclipse_${version}.jar"
+      	 manifest="${basedir}/build/I.Build/org.hackystat.sensor.eclipse/plugins/org.hackystat.sensor.eclipse_${version}/META-INF/MANIFEST.MF">
+    	<fileset dir="${basedir}/build/I.Build/org.hackystat.sensor.eclipse/plugins/org.hackystat.sensor.eclipse_${version}"/>
+    </jar>
+  	
+    <!-- Create the feature release for the update site -->
+  	<jar destfile="${basedir}/site/features/org.hackystat.sensor.eclipse_${version}.jar">
+        <fileset dir="${basedir}/build/I.Build/org.hackystat.sensor.eclipse/features/org.hackystat.sensor.eclipse_${version}"/>
+    </jar>
+  	
+  	<!-- Make a binary release on the top-level directory. -->
+    <tstamp>
+      <format property="YMDSTAMP" pattern="yyyyMdd" />
+    </tstamp>
+    <jar destfile="${basedir}/org.hackystat.sensor.eclipse_${majorVersionNumber}.${minorVersionNumber}.v${YMDSTAMP}.jar"
+      	 manifest="${basedir}/build/I.Build/org.hackystat.sensor.eclipse/plugins/org.hackystat.sensor.eclipse_${version}/META-INF/MANIFEST.MF">
+    	<fileset dir="${basedir}/build/I.Build/org.hackystat.sensor.eclipse/plugins/org.hackystat.sensor.eclipse_${version}"/>
+    </jar>
   </target>
 </project>

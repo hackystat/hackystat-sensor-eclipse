@@ -129,7 +129,6 @@ public class EclipseSensor {
     // Load sensor's setting. 
     this.loadHackystatHostSettings();
     
-    
     // Adds this EclipseSensorPlugin instance to IResourceChangeListener
     // so that project event and file save event is notified.
     IWorkspace workspace = ResourcesPlugin.getWorkspace();
@@ -142,6 +141,8 @@ public class EclipseSensor {
 
     // Adds element changed listener to get the corresponding change of refactoring.
     JavaCore.addElementChangedListener(new JavaStructureChangeDetector(this));
+    
+    initialize();
   }
 
   /**
@@ -190,7 +191,7 @@ public class EclipseSensor {
    * Initializes sensor and JUnitListener instance if the sensor is enabled. Note that JUnit
    * listener instance is added only when the instance is not instantiated.
    */
-  public void initialize() {
+  private void initialize() {
     // Sets state change time schedule.
     if (this.stateChangeTimerTask.scheduledExecutionTime() == 0) {
       this.timer.schedule(this.stateChangeTimerTask, this.timerStateChangeInterval * 1000,
@@ -870,7 +871,7 @@ public class EclipseSensor {
       int kind = delta.getKind();
 
       // If there is compilation problem with the current java file then send out the activity data.
-      if ((flag & IResourceDelta.MARKERS) != 0) {
+      if ((flag & IResourceDelta.MARKERS) != 0 && EclipseSensor.this.buildErrorSensor != null) {
         EclipseSensor.this.buildErrorSensor.findBuildProblem(delta);
       }
 

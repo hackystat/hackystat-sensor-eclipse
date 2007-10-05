@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 
+import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IMarkerDelta;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IResourceDelta;
@@ -56,7 +57,12 @@ public class BuildErrorSensor {
     }
     
     // We are interested in java file only.
-    String fileName = fileEditorInput.getFile().getLocation().toString();
+    IFile file = fileEditorInput.getFile();
+    if (file == null) {
+      return;
+    }
+    
+    String fileName = file.getLocation().toString();
     if (!fileName.endsWith(".java")) {
       return;
     }
