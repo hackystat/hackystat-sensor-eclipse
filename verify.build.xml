@@ -1,4 +1,4 @@
-<project name="verify" default="verify.disable">
+<project name="verify" default="verify">
   <description>
     Runs junit, pmd, checkstyle, findbugs, and javadoc, failing the build if problems found.
     Invocation: ant -f verify.build.xml
@@ -6,7 +6,7 @@
 
   <!-- First, override the default settings of these properties. -->
   <property name="javadoc.failonerror" value="true"/>
-  <property name="pmd.failonerror" value="false"/>
+  <property name="pmd.failonerror" value="true"/>
   <property name="findbugs.failOnError" value="true"/>  
   <property name="checkstyle.failOnViolation" value="true"/> 
   <property name="junit.haltonfailure" value="true"/>
@@ -42,9 +42,6 @@
     
     It also runs the Emma code coverage tool and prints a summary report. 
   </echo>
-	
-  <target name="verify.disable"/>
-	
   <target name="verify" 
     depends="clean, compile, checkstyle.tool,  junit.tool, javadoc, findbugs.tool,
     emma.tool,   pmd.tool, jar" 

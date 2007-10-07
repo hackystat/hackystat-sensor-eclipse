@@ -11,6 +11,8 @@
     <exclude name="UseLocaleWithCaseConversions"/>
     <exclude name="AvoidSynchronizedAtMethodLevel"/>
     <exclude name="UnnecessaryLocalBeforeReturn"/>
+    <exclude name="AssignmentToNonFinalStatic"/>
+    <exclude name="CloseResource"/>
   </rule>
   <rule ref="rulesets/finalizers.xml"/>
   <rule ref="rulesets/imports.xml"/>

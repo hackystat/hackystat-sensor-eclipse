@@ -19,6 +19,7 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.debug.core.DebugPlugin;
 import org.eclipse.debug.core.IBreakpointManager;
 import org.eclipse.jdt.core.ICompilationUnit;
+import org.eclipse.jdt.core.IPackageDeclaration;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.dom.AST;
@@ -46,6 +47,12 @@ import org.hackystat.sensor.eclipse.addon.JavaStatementMeter;
 import org.hackystat.sensor.eclipse.addon.JavaStructureChangeDetector;
 import org.hackystat.sensor.eclipse.preference.PreferenceConstants;
 import org.hackystat.sensorshell.SensorProperties;
+import static org.hackystat.sensor.eclipse.EclipseSensorConstants.PROP_CLASS_NAME;
+import static org.hackystat.sensor.eclipse.EclipseSensorConstants.PROP_CURRENT_METHODS;
+import static org.hackystat.sensor.eclipse.EclipseSensorConstants.PROP_CURRENT_SIZE;
+import static org.hackystat.sensor.eclipse.EclipseSensorConstants.PROP_CURRENT_STATEMENTS;
+import static org.hackystat.sensor.eclipse.EclipseSensorConstants.PROP_CURRENT_TEST_METHODS;
+import static org.hackystat.sensor.eclipse.EclipseSensorConstants.PROP_CURRENT_TEST_ASSERTIONS;
 
 /**
  * Provides all the necessary sensor initialization and collects data in this singleton class. A
@@ -62,7 +69,7 @@ import org.hackystat.sensorshell.SensorProperties;
  */
 public class EclipseSensor {
   /** A singleton instance. */
-  private static final EclipseSensor theInstance = new EclipseSensor();
+  private static EclipseSensor theInstance;
 
   /** The number of seconds of the state change after which timer will wake up again. */
   private long timerStateChangeInterval = 30;
@@ -151,7 +158,11 @@ public class EclipseSensor {
    *
    * @return The (singleton) instance.
    */
-  public static EclipseSensor getInstance() {
+  public synchronized static EclipseSensor getInstance() {
+    if (theInstance == null) {
+      theInstance = new EclipseSensor();
+    }
+    
     return theInstance;
   }
 
@@ -347,58 +358,31 @@ public class EclipseSensor {
       // Calculate test methods and assertions if it is a java file.
       IFileEditorInput fileEditorInput = (IFileEditorInput) this.activeTextEditor.getEditorInput();
       IFile file = fileEditorInput.getFile();
-      JavaStatementMeter testCounter = null;
       if (file.exists()) {
-        // Adds statechange DevEvent.
-        Map<String, String> statechaneKeyValueMap = new HashMap<String, String>();
-        statechaneKeyValueMap.put(EclipseSensorConstants.SUBTYPE, "StateChange");
-        // Process file size
-        String sizeString = String.valueOf(activeBufferSize);
-        statechaneKeyValueMap.put("Current-Size", sizeString);
-        
-        if (file.getName().endsWith(EclipseSensorConstants.JAVA_EXT)) {
-          // Fully qualified class path
-          String className = this.getFullyQualifedClassName();
-          statechaneKeyValueMap.put("Class-Name", className);
+        Map<String, String> statechangeMetricsMap = computeFileMetrics(file);  
 
-          // Measure java file.
-          testCounter = measureJavaFile(file);
-          
-          this.class2FileMap.put(className, file.getLocationURI());
-          String methodCountString = String.valueOf(testCounter.getNumOfMethods());
-          statechaneKeyValueMap.put("Current-Methods", methodCountString);
-
-          String statementCountString = String.valueOf(testCounter.getNumOfStatements());
-          statechaneKeyValueMap.put("Current-Statements", statementCountString);
-
-          // Number of test method and assertion statements.
-          if (testCounter.hasTest()) {
-            String testMethodCount = String.valueOf(testCounter.getNumOfTestMethods());
-            statechaneKeyValueMap.put("Current-Test-Methods", testMethodCount);
-            
-            String testAssertionCount = String.valueOf(testCounter.getNumOfTestAssertions()); 
-            statechaneKeyValueMap.put("Current-Test-Assertions", testAssertionCount);
-          }
-
-        }
-        
         // Status message for display
         StringBuffer msgBuf = new StringBuffer();
         msgBuf.append("statechange : ").append(file.getName());
-        msgBuf.append(" [").append(statechaneKeyValueMap.get("current-size"));
-        msgBuf.append(", ").append(statechaneKeyValueMap.get("class-name"));
-        String currentMethods = statechaneKeyValueMap.get("current-methods"); 
+        msgBuf.append(" [").append(statechangeMetricsMap.get(PROP_CURRENT_SIZE));
+        
+        String className = statechangeMetricsMap.get(PROP_CLASS_NAME);
+        if (className != null) {
+          msgBuf.append(", ").append(className);
+        }
+        
+        String currentMethods = statechangeMetricsMap.get(PROP_CURRENT_METHODS); 
         if (currentMethods != null) {
           msgBuf.append(", methods=").append(currentMethods);
         }
         
-        String currentStatements = statechaneKeyValueMap.get("current-statements");
+        String currentStatements = statechangeMetricsMap.get(PROP_CURRENT_STATEMENTS);
         if (currentStatements != null) {
           msgBuf.append(", stms=").append(currentStatements);
         }
         msgBuf.append(']');
 
-        this.addDevEvent(EclipseSensorConstants.DEVEVENT_EDIT, fileResource, statechaneKeyValueMap, 
+        this.addDevEvent(EclipseSensorConstants.DEVEVENT_EDIT, fileResource, statechangeMetricsMap,
             msgBuf.toString());
       }
       
@@ -407,6 +391,50 @@ public class EclipseSensor {
     }
   }
 
+  /**
+   * Computes file metrics.
+   * 
+   * @param file File.
+   * @return Map that contains key-value pairs if object metrics.
+   */
+  private Map<String, String> computeFileMetrics(IFile file) {
+    // Adds statechange DevEvent.
+    Map<String, String> statechangeKeyValueMap = new HashMap<String, String>();
+    statechangeKeyValueMap.put(EclipseSensorConstants.SUBTYPE, "StateChange");
+    // Process file size
+    String sizeString = String.valueOf(activeBufferSize);
+    statechangeKeyValueMap.put(PROP_CURRENT_SIZE, sizeString);
+    
+    if (file.getName().endsWith(EclipseSensorConstants.JAVA_EXT)) {
+      // Fully qualified class path
+      String className = this.getFullyQualifedClassName(file);
+      statechangeKeyValueMap.put(PROP_CLASS_NAME, className);
+
+      // Measure java file.
+      JavaStatementMeter testCounter = measureJavaFile(file);
+      
+      this.class2FileMap.put(className, file.getLocationURI());
+      String methodCountString = String.valueOf(testCounter.getNumOfMethods());
+      statechangeKeyValueMap.put(PROP_CURRENT_METHODS, methodCountString);
+
+      String statementCountString = String.valueOf(testCounter.getNumOfStatements());
+      statechangeKeyValueMap.put(PROP_CURRENT_STATEMENTS, 
+          statementCountString);
+
+      // Number of test method and assertion statements.
+      if (testCounter.hasTest()) {
+        String testMethodCount = String.valueOf(testCounter.getNumOfTestMethods());
+        statechangeKeyValueMap.put(PROP_CURRENT_TEST_METHODS, 
+            testMethodCount);
+        
+        String testAssertionCount = String.valueOf(testCounter.getNumOfTestAssertions()); 
+        statechangeKeyValueMap.put(PROP_CURRENT_TEST_ASSERTIONS, testAssertionCount);
+      }
+    }
+    
+    return statechangeKeyValueMap;
+  }
+  
   /**
    * Calculates java file unit test information.
    *
@@ -465,47 +493,38 @@ public class EclipseSensor {
   /**
    * Gets the fully qualified class name for an active file. For example, its value is foo.bar.Baz.
    *
-   * @return The fully qualified class name. For example,foo.bar.Baz.
-   */
-  private String getFullyQualifedClassName() {
-    if (this.activeTextEditor != null) {
-      IFileEditorInput fileEditorInput = (IFileEditorInput) this.activeTextEditor.getEditorInput();
-      IFile file = fileEditorInput.getFile();
-      if (file.exists() && file.getName().endsWith(EclipseSensorConstants.JAVA_EXT)) {
-        ICompilationUnit compilationUnit = (ICompilationUnit) JavaCore.create(file);
-        try {
-          return compilationUnit.getTypes()[0].getFullyQualifiedName();
-        }
-        catch (JavaModelException e) {
-          
-          // Ignores this because this occurs
-          // if this element does not exist or if an exception occurs
-          // while accessing its corresponding resource
-        }
-      }
-    }
-    return "";
-  }
-
-  /**
-   * Gets the fully qualified class name for an active file. For example, its value is foo.bar.Baz.
-   *
    * @param file Get fully qualified class file.
    * @return The fully qualified class name. For example,foo.bar.Baz.
    */
   private String getFullyQualifedClassName(IFile file) {
+    String fullClassName = "";
     if (file.exists() && file.getName().endsWith(EclipseSensorConstants.JAVA_EXT)) {
       ICompilationUnit compilationUnit = (ICompilationUnit) JavaCore.create(file);
+      String className = compilationUnit.getElementName();
+      if (className.endsWith(EclipseSensorConstants.JAVA_EXT)) {
+        className = className.substring(0, className.length() - 5);
+      }
+      
       try {
-        return compilationUnit.getTypes()[0].getFullyQualifiedName();
+        IPackageDeclaration[] packageDeclarations = compilationUnit.getPackageDeclarations();
+        // Should only have one package declaration
+        if (packageDeclarations == null || packageDeclarations.length == 0) {
+          fullClassName = className;
+        }
+        else {
+          fullClassName = packageDeclarations[0].getElementName() + '.' +
+                          className;
+        }
       }
       catch (JavaModelException e) {
+        EclipseSensorPlugin.getDefault().log(file.getName(), e);
         // Ignores this because this occurs
         // if this element does not exist or if an exception occurs
         // while accessing its corresponding resource
       }
     }
-    return "";
+    
+    return fullClassName;
   }
 
   /**

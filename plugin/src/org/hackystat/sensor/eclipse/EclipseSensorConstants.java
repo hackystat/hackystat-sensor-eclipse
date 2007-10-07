@@ -18,5 +18,12 @@ public class EclipseSensorConstants {
   public static final String JAVA = "java";
   /** Literals of class. */
   public static final String CLASS = "Class";
-  
+
+  protected static final String PROP_CURRENT_SIZE = "Current-Size";
+  protected static final String PROP_CLASS_NAME = "Class-Name";
+  protected static final String PROP_CURRENT_METHODS = "Current-Methods";
+  protected static final String PROP_CURRENT_STATEMENTS = "Current-Statements";
+  protected static final String PROP_CURRENT_TEST_METHODS = "Current-Test-Methods";
+  protected static final String PROP_CURRENT_TEST_ASSERTIONS = "Current-Test-Assertions";
+
 }

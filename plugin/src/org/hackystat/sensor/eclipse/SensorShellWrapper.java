@@ -88,6 +88,7 @@ public class SensorShellWrapper {
    */
   private void processStatusLine(final String message) {
     Display.getDefault().asyncExec(new Runnable() {
+
       public void run() {
         // Retrieves status line manager instance and sets the message into the instance.
         IWorkbench workbench = EclipseSensorPlugin.getInstance().getWorkbench();
@@ -95,25 +96,35 @@ public class SensorShellWrapper {
         if (activeWindow != null) {
           IWorkbenchPage activePage = activeWindow.getActivePage();
           if (activePage != null) {
-            IViewReference[] viewReferences = activePage.getViewReferences();
-            for (int i = 0; i < viewReferences.length; i++) {
-              IViewPart viewPart = viewReferences[i].getView(true);
-              if (viewPart != null) {
-                IActionBars viewActionbars = viewPart.getViewSite().getActionBars();
-                IStatusLineManager viewStatusManager = viewActionbars.getStatusLineManager();
-                // Set status line associated with view part such as Package Explore, and etc.
-                viewStatusManager.setMessage(message);
-              }
-            }
-            IEditorPart editorPart = activePage.getActiveEditor();
-            if (editorPart != null) {
-              IActionBars partActionBars = editorPart.getEditorSite().getActionBars();
-              IStatusLineManager partStatusManager = partActionBars.getStatusLineManager();
-              // Set status line associated with editor part such as text editor.
-              partStatusManager.setMessage(message);
-            }
+            showStatusMessage(activePage);
           }
         }
+      }
+      
+      /**
+       * Show the status message.
+       *  
+       * @param activePage The active workbench.
+       */
+      private void showStatusMessage(IWorkbenchPage activePage) {
+        IViewReference[] viewReferences = activePage.getViewReferences();
+        for (int i = 0; i < viewReferences.length; i++) {
+          IViewPart viewPart = viewReferences[i].getView(true);
+          if (viewPart != null) {
+            IActionBars viewActionbars = viewPart.getViewSite().getActionBars();
+            IStatusLineManager viewStatusManager = viewActionbars.getStatusLineManager();
+            // Set status line associated with view part such as Package Explore, and etc.
+            viewStatusManager.setMessage(message);
+          }
+        }
+        IEditorPart editorPart = activePage.getActiveEditor();
+        if (editorPart != null) {
+          IActionBars partActionBars = editorPart.getEditorSite().getActionBars();
+          IStatusLineManager partStatusManager = partActionBars.getStatusLineManager();
+          // Set status line associated with editor part such as text editor.
+          partStatusManager.setMessage(message);
+        }
+
       }
     });
   }

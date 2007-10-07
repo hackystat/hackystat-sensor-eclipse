@@ -2,7 +2,7 @@
 <feature
       id="org.hackystat.sensor.eclipse"
       label="Hackystat Eclipse Sensor"
-      version="8.0.1005"
+      version="8.0.1007"
       provider-name="Collaborative Software Development Laboratory">
 
    <description url="http://hackystat-sensor-eclipse.googlecode.com/svn/trunk/update">
@@ -694,6 +694,6 @@ Public License instead of this License.  But first, please read
          id="org.hackystat.sensor.eclipse"
          download-size="0"
          install-size="0"
-         version="8.0.1005"/>
+         version="8.0.1007"/>
 
 </feature>

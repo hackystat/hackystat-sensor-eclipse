@@ -18,7 +18,8 @@ public class PreferenceInitializer extends AbstractPreferenceInitializer {
     EclipseSensorPlugin plugin = EclipseSensorPlugin.getDefault();
     
     IPreferenceStore store = plugin.getPreferenceStore();
-    store.setDefault(PreferenceConstants.P_SENSORBASE,  "http://hackystat.ics.hawaii.edu/");
+    store.setDefault(PreferenceConstants.P_SENSORBASE,  
+        "http://dasha.ics.hawaii.edu:9876/sensorbase/");
     store.setDefault(PreferenceConstants.P_EMAIL, "food@bar");
     store.setDefault(PreferenceConstants.P_PASSWORD, "Y9Cpd1dK");
     
@@ -26,5 +27,4 @@ public class PreferenceInitializer extends AbstractPreferenceInitializer {
     store.setDefault(PreferenceConstants.P_UPDATE_SITE, 
             "http://hackystat-sensor-eclipse.googlecode.com/svn/trunk/site/site.xml");
   }
-
 }

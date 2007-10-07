@@ -162,25 +162,38 @@ public class VersionCheck {
     Element root = document.getDocumentElement();
     NodeList list = root.getChildNodes();
     final String FEATURE = "feature";
-    final String VERSION = "version";
     for (int i = 0; i < list.getLength(); i++) {
       if ((list.item(i).getNodeType() == Node.ELEMENT_NODE)
           && list.item(i).getNodeName().equalsIgnoreCase(FEATURE)) {
         Element element = (Element) list.item(i);
-        if (element.hasAttribute(VERSION)) {
-          String version = element.getAttribute(VERSION);
-          String[] versions = version.split("\\.");
-          String newVersion = versions[0] + "." + versions[1];   
-          Version identifier = new Version(newVersion);
-          if (identifier.getQualifier().equals(qualifierVersion)) {
-            return identifier;
-          }
+        Version identifier = getVersion(element);
+        if (identifier != null && identifier.getQualifier().equals(qualifierVersion)) {
+          return identifier;
         }
       }
     }
     return null;
   }
 
+  /**
+   * Gets the version from the element.
+   * 
+   * @param element Element node in the XML file.
+   * @return Version if the feature node has a valid version number. 
+   */
+  private static Version getVersion(Element element) {
+    Version identifier = null; 
+    
+    if (element.hasAttribute("version")) {
+      String version = element.getAttribute("version");
+      String[] versions = version.split("\\.");
+      String newVersion = versions[0] + "." + versions[1];   
+      identifier = new Version(newVersion);
+    }
+    
+    return identifier;
+  }
+  
   /**
    * Parses xml file to generate Document object from a given input stream.
    *

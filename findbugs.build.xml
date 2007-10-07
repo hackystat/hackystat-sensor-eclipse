@@ -30,6 +30,7 @@
       >
       <auxClasspath>
         <path refid="compile.classpath"/>
+        <fileset dir="${env.ECLIPSE_HOME}" includes="*.jar,**/*.jar"/>
       </auxClasspath>
       <sourcePath>
         <fileset dir="${src.dir}">

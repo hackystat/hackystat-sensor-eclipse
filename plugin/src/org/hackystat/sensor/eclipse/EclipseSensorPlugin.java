@@ -22,16 +22,16 @@ import org.osgi.framework.BundleContext;
  * Since <code>earlyStartup()</code> method was called when Eclipse runs, there is a major
  * instantiation in the method such as instantiation of EclipseSensor.
  * 
+ * 
  * Please note that resource bundle is defined since Eclipse ver3. Basically bundle is 
  * interchangable with plugin. 
  *
- * @author Takuya Yamashita, Hongbing Kou
- * @version $Id: EclipseSensorPlugin.java,v 1.1.1.1 2005/10/20 23:56:56 johnson Exp $
+ * @author Hongbing Kou
  */
 public class EclipseSensorPlugin extends AbstractUIPlugin implements BundleActivator {
   /** The plug-in ID */
   public static final String PLUGIN_ID = "org.hackystat.sensor.eclipse";
-  /** The shared instance. */
+  /** The shared instance (note that it is different from singleton). */
   public static EclipseSensorPlugin plugin;
   
   /**
@@ -42,11 +42,14 @@ public class EclipseSensorPlugin extends AbstractUIPlugin implements BundleActiv
    */
   public EclipseSensorPlugin() {
     super();
+    // Note that this is a non-standard way to initialize a singleton instance
+    // due to Eclipse's auto startup nature. 
     EclipseSensorPlugin.plugin = this;
   }
   
   /**
    * Reimplement start to handle Eclipse plugin version check.
+   * 
    * 
    * @param context Bundle context for Hackystat sensor.
    * @throws Exception If error while starting hackystat sensor.
@@ -77,6 +80,7 @@ public class EclipseSensorPlugin extends AbstractUIPlugin implements BundleActiv
    */
   public void stop(BundleContext context) throws Exception {
     super.stop(context);
+    
     EclipseSensor sensor = EclipseSensor.getInstance();
     sensor.stop();
   }
@@ -162,9 +166,21 @@ public class EclipseSensorPlugin extends AbstractUIPlugin implements BundleActiv
     return ResourcesPlugin.getWorkspace();
   }
 
-
   /**
    * Logs out the exception or error message for Eclispe sensor plug-in.
+   * 
+   * @param message Error message.
+   * @param e Exception. 
+   */
+  public void log(String message, Exception e) {
+    String pluginName = super.getBundle().getSymbolicName();
+    IStatus status = new Status(IStatus.ERROR, pluginName, 0, message + e.getMessage(), e);
+    
+    plugin.getLog().log(status);
+  }
+  
+  /**
+   * Logs out the exception or error message for Eclipse sensor plug-in.
    * 
    * @param e Exception. 
    */

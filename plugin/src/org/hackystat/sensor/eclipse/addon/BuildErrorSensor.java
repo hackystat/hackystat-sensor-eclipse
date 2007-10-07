@@ -82,40 +82,56 @@ public class BuildErrorSensor {
     
     URI fileResource = fileEditorInput.getFile().getLocationURI();
     IMarkerDelta markerDeltas[] = delta.getMarkerDeltas();
-    if (markerDeltas != null && markerDeltas.length > 0) {
-      // Message pool is used to filter out the repeated compilation error.
-      HashSet<String> messagePool = new HashSet<String>();
-      for (int i = 0; i < markerDeltas.length; i++) {
-        IMarkerDelta markerDelta = (IMarkerDelta) markerDeltas[i];
-        if (markerDelta.getType() == IJavaModelMarker.JAVA_MODEL_PROBLEM_MARKER) {
-          String severity = markerDelta.getAttribute("severity").toString();
-          String message = markerDelta.getAttribute("message").toString();
-          
-          // Only error will be processed, warning & info will be ignored.
-          if ("2".equals(severity) &&  
-              (markerDelta.getKind() == IResourceDelta.ADDED || 
-               markerDelta.getKind() == IResourceDelta.CHANGED)) {
-            Map<String, String> keyValueMap = new HashMap<String, String>();
-            keyValueMap.put("Subtype", "Compile");
-            keyValueMap.put("Success", "false");
-            keyValueMap.put("Error", message);
-            
-            StringBuffer displayMessage = new StringBuffer();
-            displayMessage.append("Build Error : ")
-                          .append(this.sensor.extractFileName(fileResource))
-                          .append(" [").append(message).append(']');
-            
-            String data = fileName + "#" + severity + 
-                          "#" + (String) markerDelta.getAttribute("message");
-            // Only sends out unrepeated data.
-            if (!messagePool.contains(data)) {
-              this.sensor.addDevEvent("Build", fileResource, keyValueMap,
-                displayMessage.toString());
-              messagePool.add(data);
-            }
-          }
-        }  
+    if (markerDeltas == null || markerDeltas.length == 0) {
+      return;
+    }
+    
+    // Message pool is used to filter out the repeated compilation error.
+    HashSet<String> messagePool = new HashSet<String>();
+    for (int i = 0; i < markerDeltas.length; i++) {
+      IMarkerDelta markerDelta = (IMarkerDelta) markerDeltas[i];
+      Map<String, String> keyValueMap = processPossibleBuildErrors(fileResource, markerDelta);
+      if (!keyValueMap.isEmpty()) {
+        // Only sends out unrepeated data.
+        String errorMsg = keyValueMap.get("Error");
+        String data = fileName + "#" + errorMsg;
+
+        if (!messagePool.contains(data)) {
+          StringBuffer displayMessage = new StringBuffer();
+          displayMessage.append("Build Error : ")
+                        .append(this.sensor.extractFileName(fileResource))
+                        .append(" [").append(errorMsg).append(']');
+          this.sensor.addDevEvent("Build", fileResource, keyValueMap, displayMessage.toString());
+          messagePool.add(data);
+        }
       }
     }      
+  }
+  
+  /**
+   * Processes the marker defined in the resource file.
+   * 
+   * @param fileResource File resource.
+   * @param markerDelta Marker to in the resource file.
+   * @return A map contains metric names and values.
+   */
+  private Map<String, String> processPossibleBuildErrors(URI fileResource, 
+      IMarkerDelta markerDelta) {
+    Map<String, String> keyValueMap = new HashMap<String, String>();
+    if (markerDelta.getType() == IJavaModelMarker.JAVA_MODEL_PROBLEM_MARKER) {
+      String severity = markerDelta.getAttribute("severity").toString();
+      String message = markerDelta.getAttribute("message").toString();
+      
+      // Only error will be processed, warning & info will be ignored.
+      if ("2".equals(severity) &&  
+          (markerDelta.getKind() == IResourceDelta.ADDED || 
+           markerDelta.getKind() == IResourceDelta.CHANGED)) {
+        keyValueMap.put("Subtype", "Compile");
+        keyValueMap.put("Success", "false");
+        keyValueMap.put("Error", message);
+      }
+    }  
+
+    return keyValueMap;
   }
 }
