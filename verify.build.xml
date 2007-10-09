@@ -1,4 +1,4 @@
-<project name="verify" default="verify">
+<project name="verify" default="verify.disable">
   <description>
     Runs junit, pmd, checkstyle, findbugs, and javadoc, failing the build if problems found.
     Invocation: ant -f verify.build.xml
