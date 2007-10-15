@@ -63,9 +63,7 @@ import static org.hackystat.sensor.eclipse.EclipseSensorConstants.PROP_CURRENT_T
  * following process methods: Because of lazy instantiation, any activity was not set until the
  * initial call for <code>getInstance()</code>.
  * </p>
- *
  * @author Hongbing Kou, Takuya Yamashita
- * @version $Id: EclipseSensor.java,v 1.1.1.1 2005/10/20 23:56:56 johnson Exp $
  */
 public class EclipseSensor {
   /** A singleton instance. */
@@ -292,7 +290,6 @@ public class EclipseSensor {
    */
   public void addDevEvent(String type, URI fileResource, Map<String, String> moreKeyValueMap, 
       String message) {
-   
     Map<String, String> keyValueMap = new HashMap<String, String>();
     keyValueMap.put("Tool", "Eclipse");
     keyValueMap.put("SensorDataType", "DevEvent");
@@ -517,10 +514,13 @@ public class EclipseSensor {
         }
       }
       catch (JavaModelException e) {
-        EclipseSensorPlugin.getDefault().log(file.getName(), e);
-        // Ignores this because this occurs
-        // if this element does not exist or if an exception occurs
-        // while accessing its corresponding resource
+        // This exception will be thrown if user is working on a Java but did not open
+        // it with "Java Perspective". Thus, the Java Model does not exist to parse 
+        // Java files. So we only log out exception while Eclipse's Java Perspective 
+        // exits.
+        if (!e.isDoesNotExist()) {
+           EclipseSensorPlugin.getDefault().log(file.getName(), e);
+        }
       }
     }
     

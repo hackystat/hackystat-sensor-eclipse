@@ -174,7 +174,7 @@ public class EclipseSensorPlugin extends AbstractUIPlugin implements BundleActiv
    */
   public void log(String message, Exception e) {
     String pluginName = super.getBundle().getSymbolicName();
-    IStatus status = new Status(IStatus.ERROR, pluginName, 0, message + e.getMessage(), e);
+    IStatus status = new Status(IStatus.ERROR, pluginName, 0, message + " " + e.getMessage(), e);
     
     plugin.getLog().log(status);
   }
