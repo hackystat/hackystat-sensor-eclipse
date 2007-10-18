@@ -23,8 +23,8 @@ public class PreferenceInitializer extends AbstractPreferenceInitializer {
     store.setDefault(PreferenceConstants.P_EMAIL, "food@bar");
     store.setDefault(PreferenceConstants.P_PASSWORD, "Y9Cpd1dK");
     
-    store.setDefault(PreferenceConstants.P_ENABLE_AUTOUPDATE, true);
-    store.setDefault(PreferenceConstants.P_UPDATE_SITE, 
-            "http://hackystat-sensor-eclipse.googlecode.com/svn/trunk/site/site.xml");
+    //store.setDefault(PreferenceConstants.P_ENABLE_AUTOUPDATE, true);
+//    store.setDefault(PreferenceConstants.P_UPDATE_SITE, 
+//            "http://hackystat-sensor-eclipse.googlecode.com/svn/trunk/site/site.xml");
   }
 }

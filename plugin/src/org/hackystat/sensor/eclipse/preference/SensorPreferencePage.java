@@ -25,9 +25,9 @@ public class SensorPreferencePage extends FieldEditorPreferencePage
   /** Password field. */
   private StringFieldEditor passwordField;
   /** Autoupdate field. */
-  private BooleanFieldEditor autoUpdateEditor;
+  //private BooleanFieldEditor autoUpdateEditor;
   /** Update site. */
-  private StringFieldEditor udpateSiteField;
+  //private StringFieldEditor udpateSiteField;
   
   /** 
    * Instantiate Eclipse plugin preference.
@@ -64,14 +64,14 @@ public class SensorPreferencePage extends FieldEditorPreferencePage
     super.addField(this.passwordField);
 
     // Whether or not allow auto update
-    this.autoUpdateEditor = new BooleanFieldEditor(
-        PreferenceConstants.P_ENABLE_AUTOUPDATE,
-        "Enable &AutoUpdate", getFieldEditorParent());
-    super.addField(this.autoUpdateEditor);
+//    this.autoUpdateEditor = new BooleanFieldEditor(
+//        PreferenceConstants.P_ENABLE_AUTOUPDATE,
+//        "Enable &AutoUpdate", getFieldEditorParent());
+//    super.addField(this.autoUpdateEditor);
     
-    this.udpateSiteField = new StringFieldEditor(
-        PreferenceConstants.P_UPDATE_SITE, "&Update Site", getFieldEditorParent());
-    super.addField(this.udpateSiteField);
+//    this.udpateSiteField = new StringFieldEditor(
+//        PreferenceConstants.P_UPDATE_SITE, "&Update Site", getFieldEditorParent());
+//    super.addField(this.udpateSiteField);
   }
 
   /**

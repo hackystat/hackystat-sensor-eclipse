@@ -13,7 +13,7 @@ public final class PreferenceConstants {
   /** Password to the sensorbase. */
   public static final String P_PASSWORD = "Password";
   /** Sensor update site. */
-  public static final String P_UPDATE_SITE = "UpdateSite";
-  /** Whether sensor auto update is allowed. */
-  public static final String P_ENABLE_AUTOUPDATE = "EnableAutoUpdate"; 
+//  public static final String P_UPDATE_SITE = "UpdateSite";
+//  /** Whether sensor auto update is allowed. */
+//  public static final String P_ENABLE_AUTOUPDATE = "EnableAutoUpdate"; 
 }

@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Hackystat Eclipse Sensor
 Bundle-SymbolicName: org.hackystat.sensor.eclipse;singleton:=true
-Bundle-Version: 8.0.1014
+Bundle-Version: 8.0.1017
 Bundle-Activator: org.hackystat.sensor.eclipse.EclipseSensorPlugin
 Bundle-Vendor: Collaborative Software Development Laboratory
 Bundle-Localization: plugin

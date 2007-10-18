@@ -60,16 +60,16 @@ public class EclipseSensorPlugin extends AbstractUIPlugin implements BundleActiv
     super.start(context);
     
     // Preference.
-    IPreferenceStore store = this.getPreferenceStore();
+//    IPreferenceStore store = this.getPreferenceStore();
   
-    boolean isSensorAutoUpdateEnabled = store.getBoolean(PreferenceConstants.P_ENABLE_AUTOUPDATE);
-  
-    if (isSensorAutoUpdateEnabled) {
-      String updateSite = store.getString(PreferenceConstants.P_UPDATE_SITE);
-      SensorUpdateThread sensorUpdateThread = new SensorUpdateThread(context.getBundle(), 
-            updateSite);
-      sensorUpdateThread.start();
-    }
+//    boolean isSensorAutoUpdateEnabled = store.getBoolean(PreferenceConstants.P_ENABLE_AUTOUPDATE);
+//  
+//    if (isSensorAutoUpdateEnabled) {
+//      String updateSite = store.getString(PreferenceConstants.P_UPDATE_SITE);
+//      SensorUpdateThread sensorUpdateThread = new SensorUpdateThread(context.getBundle(), 
+//            updateSite);
+//      sensorUpdateThread.start();
+//    }
   }
 
   /**
