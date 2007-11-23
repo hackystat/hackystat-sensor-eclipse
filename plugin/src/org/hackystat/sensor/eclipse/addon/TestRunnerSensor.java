@@ -2,8 +2,13 @@ package org.hackystat.sensor.eclipse.addon;
 
 import java.net.URI;
 import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.Map;
+
+import javax.xml.datatype.DatatypeConfigurationException;
+import javax.xml.datatype.DatatypeFactory;
+import javax.xml.datatype.XMLGregorianCalendar;
 
 import org.eclipse.jdt.junit.ITestRunListener;
 import org.hackystat.sensor.eclipse.EclipseSensor;
@@ -22,7 +27,7 @@ public class TestRunnerSensor implements ITestRunListener {
   private EclipseSensor sensor;
   
   /** Run time. */
-  private Date runTime;
+  private XMLGregorianCalendar runTime;
   /** Number of tests in one test run. */
   private int testCount;
   /** Indice of the test in one test run. */
@@ -83,9 +88,28 @@ public class TestRunnerSensor implements ITestRunListener {
    * @see org.eclipse.jdt.junit.ITestRunListener#testRunStarted(int)
    */
   public void testRunStarted(int testCount) {
-    this.runTime = new Date();
+    this.runTime = makeTimestamp();
     this.testCount = testCount;
     this.testIndice = 1;
+  }
+  
+  /**
+   * Converts the specified time in milliseconds into a
+   * javax.xml.datatype.XMLGregorianCalendar.
+   * @param timeInMillis the specified time in milliseconds to convert.
+   * @return A new instance of a javax.xml.datatype.XmlGregorianCalendar
+   */
+  private XMLGregorianCalendar makeTimestamp() {
+    DatatypeFactory factory = null;
+    try {
+      factory = DatatypeFactory.newInstance();
+      GregorianCalendar calendar = new GregorianCalendar();
+      calendar.setTimeInMillis(new Date().getTime());
+      return factory.newXMLGregorianCalendar(calendar);
+    }
+    catch (DatatypeConfigurationException e) {
+      throw new RuntimeException("Can not get date of XMLGregorianCalendar", e);
+    }
   }
   
    /**
@@ -191,7 +215,7 @@ public class TestRunnerSensor implements ITestRunListener {
     
     // Run test
     Map<String, String> keyValueMap = new HashMap<String, String>();
-    keyValueMap.put("Runtime", String.valueOf(this.runTime.getTime()));
+    keyValueMap.put("Runtime", String.valueOf(this.runTime.toString()));
 
     // Elapsed time
     long elapsedTime = endTime.getTime() - this.startTime.getTime();
