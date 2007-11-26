@@ -180,6 +180,7 @@ public class EclipseSensor {
     SensorProperties sensorProperties = new SensorProperties(host, email, password);
     // Check if the new sensor property file enable sensor to be activated.
     this.sensorShellWrapper = new SensorShellWrapper(sensorProperties);
+    updateAutoSendInterval(this.sensorShellWrapper);
   }
 
   /**
@@ -194,8 +195,22 @@ public class EclipseSensor {
     SensorProperties sensorProperties = new SensorProperties(sensorbase, email, password);
     // Check if the new sensor property file enable sensor to be activated.
     this.sensorShellWrapper = new SensorShellWrapper(sensorProperties);
+    updateAutoSendInterval(this.sensorShellWrapper);
   }
-  
+
+  /**
+   * Updates the autosend interval.
+   * 
+   * @param sensorshellWrapper Sensor shell wrapper.
+   */
+  private void updateAutoSendInterval(SensorShellWrapper sensorshellWrapper) {
+    EclipseSensorPlugin plugin = EclipseSensorPlugin.getDefault();
+    IPreferenceStore store = plugin.getPreferenceStore();
+    String autosendInterval = store.getString(PreferenceConstants.P_AUTOSEND_INTERVAL);
+    int autosendIntervalValue = Integer.parseInt(autosendInterval);
+    this.sensorShellWrapper.setAutoSendInterval(autosendIntervalValue);
+  }
+
   /**
    * Initializes sensor and JUnitListener instance if the sensor is enabled. Note that JUnit
    * listener instance is added only when the instance is not instantiated.

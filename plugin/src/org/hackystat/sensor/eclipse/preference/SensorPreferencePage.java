@@ -1,7 +1,7 @@
 package org.hackystat.sensor.eclipse.preference;
 
-import org.eclipse.jface.preference.BooleanFieldEditor;
 import org.eclipse.jface.preference.FieldEditorPreferencePage;
+import org.eclipse.jface.preference.IntegerFieldEditor;
 import org.eclipse.jface.preference.StringFieldEditor;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPreferencePage;
@@ -14,7 +14,6 @@ import org.hackystat.sensorbase.client.SensorBaseClient;
  * that hackystat sensorbase host, email and password are correct. 
  * 
  * @author Hongbing Kou
- * @version $Id: EclipseSensorPreference.java,v 1.1.1.1 2005/10/20 23:56:56 johnson Exp $
  */
 public class SensorPreferencePage extends FieldEditorPreferencePage 
     implements IWorkbenchPreferencePage {
@@ -24,6 +23,9 @@ public class SensorPreferencePage extends FieldEditorPreferencePage
   private StringFieldEditor emailField;
   /** Password field. */
   private StringFieldEditor passwordField;
+  /** Autosend Interval field. */
+  private IntegerFieldEditor autosendIntervalField;
+  
   /** Autoupdate field. */
   //private BooleanFieldEditor autoUpdateEditor;
   /** Update site. */
@@ -61,7 +63,13 @@ public class SensorPreferencePage extends FieldEditorPreferencePage
     this.passwordField = new StringFieldEditor(
         PreferenceConstants.P_PASSWORD, "&Password", getFieldEditorParent());
     this.passwordField.setEmptyStringAllowed(false);
+    this.passwordField.getTextControl(getFieldEditorParent()).setEchoChar('*');
     super.addField(this.passwordField);
+
+    this.autosendIntervalField = new IntegerFieldEditor(PreferenceConstants.P_AUTOSEND_INTERVAL, 
+        "&Autosend Interval (Minutes)", getFieldEditorParent());
+    this.autosendIntervalField.setEmptyStringAllowed(false);
+    super.addField(this.autosendIntervalField);
 
     // Whether or not allow auto update
 //    this.autoUpdateEditor = new BooleanFieldEditor(
