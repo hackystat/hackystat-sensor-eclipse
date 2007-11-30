@@ -1,8 +1,16 @@
 package org.hackystat.sensor.eclipse;
 
+import static org.hackystat.sensor.eclipse.EclipseSensorConstants.PROP_CLASS_NAME;
+import static org.hackystat.sensor.eclipse.EclipseSensorConstants.PROP_CURRENT_METHODS;
+import static org.hackystat.sensor.eclipse.EclipseSensorConstants.PROP_CURRENT_SIZE;
+import static org.hackystat.sensor.eclipse.EclipseSensorConstants.PROP_CURRENT_STATEMENTS;
+import static org.hackystat.sensor.eclipse.EclipseSensorConstants.PROP_CURRENT_TEST_ASSERTIONS;
+import static org.hackystat.sensor.eclipse.EclipseSensorConstants.PROP_CURRENT_TEST_METHODS;
+
 import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Properties;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -46,13 +54,8 @@ import org.hackystat.sensor.eclipse.addon.DebugSensor;
 import org.hackystat.sensor.eclipse.addon.JavaStatementMeter;
 import org.hackystat.sensor.eclipse.addon.JavaStructureChangeDetector;
 import org.hackystat.sensor.eclipse.preference.PreferenceConstants;
-import org.hackystat.sensorshell.SensorProperties;
-import static org.hackystat.sensor.eclipse.EclipseSensorConstants.PROP_CLASS_NAME;
-import static org.hackystat.sensor.eclipse.EclipseSensorConstants.PROP_CURRENT_METHODS;
-import static org.hackystat.sensor.eclipse.EclipseSensorConstants.PROP_CURRENT_SIZE;
-import static org.hackystat.sensor.eclipse.EclipseSensorConstants.PROP_CURRENT_STATEMENTS;
-import static org.hackystat.sensor.eclipse.EclipseSensorConstants.PROP_CURRENT_TEST_METHODS;
-import static org.hackystat.sensor.eclipse.EclipseSensorConstants.PROP_CURRENT_TEST_ASSERTIONS;
+import org.hackystat.sensorshell.SensorShellException;
+import org.hackystat.sensorshell.SensorShellProperties;
 
 /**
  * Provides all the necessary sensor initialization and collects data in this singleton class. A
@@ -125,14 +128,16 @@ public class EclipseSensor {
    * Provides instantiation of SensorProperties, which has information in the sensor.properties
    * file, and executes <code>doCommand</code> to activate sensor. Note that the Eclipse instance
    * is lazily instantiated when static <code>getInstance()</code> was called.
+   * 
+   * @throws SensorShellException If error in getting sensorshell.
    */
-  private EclipseSensor() {
+  private EclipseSensor() throws SensorShellException {
     this.timer = new Timer();
     this.stateChangeTimerTask = new StateChangeTimerTask();
     this.buffTransTimerTask = new BuffTransTimertask();
     
     // Load sensor's setting. 
-    this.loadHackystatHostSettings();
+    this.hotDeploySensorShell();
     
     // Adds this EclipseSensorPlugin instance to IResourceChangeListener
     // so that project event and file save event is notified.
@@ -155,8 +160,9 @@ public class EclipseSensor {
    * EclipseSensorPlugin client class for instantiation.
    *
    * @return The (singleton) instance.
+   * @throws SensorShellException If problem occurred in instantiating the sensor.
    */
-  public synchronized static EclipseSensor getInstance() {
+  public synchronized static EclipseSensor getInstance() throws SensorShellException {
     if (theInstance == null) {
       theInstance = new EclipseSensor();
     }
@@ -165,50 +171,42 @@ public class EclipseSensor {
   }
 
   /**
-   * Loads the hackystat specific settings to instantiate sensor shell.
-   *
+   * Deploy the sensorshell by delegating the calls to SensorSellWrapper.
+   * 
+   * @throws SensorShellException Sensorshell exception.
    */
-  private synchronized void loadHackystatHostSettings() {
-    // Preference.
-    EclipseSensorPlugin plugin = EclipseSensorPlugin.getDefault();
-    IPreferenceStore store = plugin.getPreferenceStore();
+  public synchronized void hotDeploySensorShell() throws SensorShellException {
+    SensorShellProperties sensorShellProperties = buildProperties();  
+    this.sensorShellWrapper = new SensorShellWrapper(sensorShellProperties);
+  }
   
-    String host = store.getString(PreferenceConstants.P_SENSORBASE);
-    String email = store.getString(PreferenceConstants.P_EMAIL);
-    String password = store.getString(PreferenceConstants.P_PASSWORD);
-    
-    SensorProperties sensorProperties = new SensorProperties(host, email, password);
-    // Check if the new sensor property file enable sensor to be activated.
-    this.sensorShellWrapper = new SensorShellWrapper(sensorProperties);
-    updateAutoSendInterval(this.sensorShellWrapper);
-  }
-
   /**
-   * Reloads Hackystat settings.  
+   * Build sensor properties out from user's preference.
    * 
-   * @param sensorbase Hackystat sensorbase name.
-   * @param email Email address.
-   * @param password Password.
+   * @throws SensorShellException Sensorshell properties problem.
+   * @return Sensorshell properties.
    */
-  public synchronized void hotReloadHackystatHostSettings(String sensorbase, String email, 
-      String password) {
-    SensorProperties sensorProperties = new SensorProperties(sensorbase, email, password);
-    // Check if the new sensor property file enable sensor to be activated.
-    this.sensorShellWrapper = new SensorShellWrapper(sensorProperties);
-    updateAutoSendInterval(this.sensorShellWrapper);
-  }
-
-  /**
-   * Updates the autosend interval.
-   * 
-   * @param sensorshellWrapper Sensor shell wrapper.
-   */
-  private void updateAutoSendInterval(SensorShellWrapper sensorshellWrapper) {
+  private SensorShellProperties buildProperties() throws SensorShellException {
     EclipseSensorPlugin plugin = EclipseSensorPlugin.getDefault();
     IPreferenceStore store = plugin.getPreferenceStore();
+
+    Properties props = new Properties();
+
+    String host = store.getString(PreferenceConstants.P_SENSORBASE);
+    props.put(SensorShellProperties.SENSORSHELL_SENSORBASE_HOST_KEY, host);
+
+    String email = store.getString(PreferenceConstants.P_EMAIL);
+    props.put(SensorShellProperties.SENSORSHELL_SENSORBASE_USER_KEY, email);
+
+    String password = store.getString(PreferenceConstants.P_PASSWORD);
+    props.put(SensorShellProperties.SENSORSHELL_SENSORBASE_PASSWORD_KEY, password);
+
     String autosendInterval = store.getString(PreferenceConstants.P_AUTOSEND_INTERVAL);
-    int autosendIntervalValue = Integer.parseInt(autosendInterval);
-    this.sensorShellWrapper.setAutoSendInterval(autosendIntervalValue);
+    props.put(SensorShellProperties.SENSORSHELL_AUTOSEND_TIMEINTERVAL_KEY, autosendInterval);
+
+    SensorShellProperties sensorShellProperties = new SensorShellProperties(props, true);
+    
+    return sensorShellProperties;
   }
 
   /**

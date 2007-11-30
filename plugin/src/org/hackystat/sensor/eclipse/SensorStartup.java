@@ -1,6 +1,7 @@
 package org.hackystat.sensor.eclipse;
 
 import org.eclipse.ui.IStartup;
+import org.hackystat.sensorshell.SensorShellException;
 
 /**
  * This is a helper class to start Eclipse Sensor Plugin at startup time. This class stood out 
@@ -20,7 +21,12 @@ public class SensorStartup implements IStartup {
    */
   public void earlyStartup() {
     //To initialize the sensor.
-    EclipseSensor.getInstance();
+    try {
+      EclipseSensor.getInstance();
+    }
+    catch (SensorShellException e) {
+      e.printStackTrace();
+    }
   }
 
 }

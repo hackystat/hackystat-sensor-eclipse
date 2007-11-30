@@ -12,6 +12,7 @@ import javax.xml.datatype.XMLGregorianCalendar;
 
 import org.eclipse.jdt.junit.ITestRunListener;
 import org.hackystat.sensor.eclipse.EclipseSensor;
+import org.hackystat.sensorshell.SensorShellException;
 
 
 /**
@@ -44,8 +45,9 @@ public class TestRunnerSensor implements ITestRunListener {
    * Constructor for the EclipseJUnitListener object. Adds this lister instance to the
    * <code>org.eclipse.jdt.internal.junit.ui.JUnitPlugin</code> instance.
    *
+   * @throws SensorShellException If error in getting the sensorshell.
    */
-  public TestRunnerSensor() {
+  public TestRunnerSensor() throws SensorShellException {
     this(EclipseSensor.getInstance());
   }
   
@@ -96,7 +98,6 @@ public class TestRunnerSensor implements ITestRunListener {
   /**
    * Converts the specified time in milliseconds into a
    * javax.xml.datatype.XMLGregorianCalendar.
-   * @param timeInMillis the specified time in milliseconds to convert.
    * @return A new instance of a javax.xml.datatype.XmlGregorianCalendar
    */
   private XMLGregorianCalendar makeTimestamp() {

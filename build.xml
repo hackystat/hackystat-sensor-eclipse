@@ -50,6 +50,7 @@
   <path id="compile.classpath">
     <fileset file="${env.JUNIT_HOME}/junit-${junit.version}.jar"/>
     <fileset file="${env.FINDBUGS_HOME}/lib/annotations.jar"/> 
+  	<fileset file="${env.HACKYSTAT_SENSORSHELL_HOME}/sensorshell.jar"/>
   </path> 
 
   <!-- Verify that ECLIPSE_HOME is set. -->
@@ -68,7 +69,7 @@
   <available file="${env.HACKYSTAT_SENSORSHELL_HOME}/sensorshell.jar" property="hackystat.sensorshell.available"/>
   <fail message="This package requires the Hackystat SensorShell to be installed and HACKYSTAT_SENSORSHELL_HOME defined" unless="hackystat.sensorshell.available"/>   
 
-  <target name="compile" depends="clean,prep" description="Compiles the code.">
+  <target name="compile" depends="clean" description="Compiles the code.">
   	<!-- 
       Build the feature and plugin in headless mode. Please be cautious that the version 
       numbers are from the Eclipse version you use. Be sure to change them if necessary. 
@@ -89,6 +90,12 @@
         <fileset dir="${basedir}/plugin"/>
     </copy>
 
+  	<!-- Timestamp the version numbers. -->
+  	<antcall target="prep">
+  	   <param name="featureDir" value="${featureDir}"/>
+ 	   <param name="pluginDir" value="${pluginDir}"/>
+   	</antcall>
+  	
   	<echo message="Launching the headless build."/>
     <java jar="${env.ECLIPSE_HOME}/plugins/${env.ECLIPSE_PLUGIN_EQUINOX}" fork="true">
       <arg line="-application org.eclipse.ant.core.antRunner"/>
@@ -110,18 +117,14 @@
   </target>
 
   <target name="prep">
-  	<!-- Update version numbers for plugin.xml, feature.xml and site.xml -->
+  	<!-- Update version numbers for plugin.xml and feature.xml -->
   	<replaceregexp match="[\d]+\.[\d]+\.[\d]+" replace="${version}" flags="g">
-  	  <fileset dir="${basedir}" 
-  	           includes="plugin/META-INF/MANIFEST.MF,feature/feature.xml,site/site.xml"/>
+  	  <fileset file="${pluginDir}/META-INF/MANIFEST.MF"/>
+  	  <fileset file="${featureDir}/feature.xml"/>
     </replaceregexp>	
   	
   	<!-- Update sensorshell.jar. -->
   	<copy todir="${basedir}/plugin/lib" file="${env.HACKYSTAT_SENSORSHELL_HOME}/sensorshell.jar"/>
   </target>
 </project>
-
-
-
-
 

@@ -11,8 +11,9 @@ import org.eclipse.ui.IViewReference;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchWindow;
-import org.hackystat.sensorshell.SensorProperties;
 import org.hackystat.sensorshell.SensorShell;
+import org.hackystat.sensorshell.SensorShellException;
+import org.hackystat.sensorshell.SensorShellProperties;
 
 /**
  * Provides the sensor shell wrapper class, which provides eclipse specific invocation such that 
@@ -23,13 +24,16 @@ import org.hackystat.sensorshell.SensorShell;
 public class SensorShellWrapper {
   /** The sensor shell instance. */
   private SensorShell shell;
-  
+
   /**
    * Instantiates the eclipse specific sensor shell.
-   * @param sensorProperties the SensorProperties instance.
+   * 
+   * @param sensorShellProperties the SensorProperties instance.
+   * 
+   * @throws SensorShellException If error occurs in instantiating the sensorshell.
    */
-  SensorShellWrapper(SensorProperties sensorProperties) {
-    this.shell = new SensorShell(sensorProperties, false, "Eclipse");
+  SensorShellWrapper(SensorShellProperties sensorShellProperties) throws SensorShellException {
+    this.shell = new SensorShell(sensorShellProperties, false, "Eclipse");
   }
   
   /**
@@ -56,7 +60,14 @@ public class SensorShellWrapper {
    * Sends all Hackystat data to the server. Do nothing if sensor shell instance is null.
    */
   public void send() {
-    this.shell.send();
+    try {
+      this.shell.send();
+    }
+    catch (SensorShellException e) {
+      EclipseSensorPlugin plugin = EclipseSensorPlugin.getDefault();
+      plugin.log(e);
+      processStatusLine("Hackystat Sensor : Error occurred when sending data to server. ");
+    }
   }
   
   /**
@@ -67,16 +78,6 @@ public class SensorShellWrapper {
     this.shell.quit();
   }
 
-  
-  /**
-   * Reset the autosend interval of sensorshell.
-   * 
-   * @param minutes Number of minutes to autosend sensor data. 
-   */
-  public void setAutoSendInterval(int minutes) {
-    this.shell.setAutoSendTimeInterval(minutes);
-  }
-  
   /**
    * Processes to display the message in the status line. Since EclipseSensor is executed
    * from a non-UI thread, such the application that wishs to call UI code from the non-UI thread

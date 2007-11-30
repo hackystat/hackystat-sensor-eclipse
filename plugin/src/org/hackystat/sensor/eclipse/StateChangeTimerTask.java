@@ -2,24 +2,26 @@ package org.hackystat.sensor.eclipse;
 
 import java.util.TimerTask;
 
+import org.hackystat.sensorshell.SensorShellException;
+
 /**
  * Implements Eclipse sensor timer task that can be executed by a timer. The timer task checks
- * whether the state of Eclipse buffer has been changed since its last invocation, and also
- * process the FileMetric.
+ * whether the state of Eclipse buffer has been changed since its last invocation.
  *
- * @author Takuya Yamashita
- * @version $Id: StateChangeTimerTask.java,v 1.1.1.1 2005/10/20 23:56:56 johnson Exp $
+ * @author Hongbing Kou
  */
 public class StateChangeTimerTask extends TimerTask {
   /**
-   * Processes the state change activity and computes file metrics in a time based interval.
+   * Processes the state change activity in a time based interval.
    */
   public void run() {
-    EclipseSensor sensor = EclipseSensor.getInstance();
-    // process FileMetric.
-    // sensor.processFileMetric();
-    // Chnaged to call processFileMetric() inside state change activity
-    // process state change Activity.
-    sensor.processStateChangeActivity();
+    
+    try {
+      EclipseSensor sensor = EclipseSensor.getInstance();
+      sensor.processStateChangeActivity();
+    }
+    catch (SensorShellException e) {
+      e.printStackTrace();
+    }
   }
 }

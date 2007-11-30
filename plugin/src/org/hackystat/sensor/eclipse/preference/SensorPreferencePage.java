@@ -8,6 +8,7 @@ import org.eclipse.ui.IWorkbenchPreferencePage;
 import org.hackystat.sensor.eclipse.EclipseSensor;
 import org.hackystat.sensor.eclipse.EclipseSensorPlugin;
 import org.hackystat.sensorbase.client.SensorBaseClient;
+import org.hackystat.sensorshell.SensorShellException;
 
 /**
  * Implements the preference page for Eclipse Sensor. It does some validation to make sure
@@ -114,13 +115,20 @@ public class SensorPreferencePage extends FieldEditorPreferencePage
       return false;
     }
     
-    EclipseSensor sensor = EclipseSensor.getInstance();
-    // Stop the sensor temporarily to let it send out previously collected sensor data.
-    sensor.stop();
+   // Ask sensor to enable the new settings.
+    try {
+      super.performOk();
+
+      EclipseSensor sensor = EclipseSensor.getInstance();
+      // Stop the sensor temporarily to let it send out previously collected sensor data.
+      sensor.stop();
+      sensor.hotDeploySensorShell();
+    }
+    catch (SensorShellException e) {
+      super.setErrorMessage(e.getMessage());
+      return false;
+    }
     
-    // Ask sensor to enable the new settings.
-    sensor.hotReloadHackystatHostSettings(sensorbase, email, password);
-    
-    return super.performOk();
+    return true;
   }
 }
