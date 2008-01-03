@@ -21,7 +21,7 @@
   	
   	<!-- Make a binary release on the top-level directory. -->
     <tstamp>
-      <format property="YMDSTAMP" pattern="yyyyMdd" />
+      <format property="YMDSTAMP" pattern="yyyyMMdd" />
     </tstamp>
     <jar destfile="${basedir}/org.hackystat.sensor.eclipse_${majorVersionNumber}.${minorVersionNumber}.v${YMDSTAMP}.jar"
       	 manifest="${basedir}/build/I.Build/org.hackystat.sensor.eclipse/plugins/org.hackystat.sensor.eclipse_${version}/META-INF/MANIFEST.MF">
