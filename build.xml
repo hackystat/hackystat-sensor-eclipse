@@ -32,7 +32,7 @@
   <!-- Basic properties for this system. --> 
   <property name="system.name" value="hackystat-sensor-eclipse" />
   <property name="majorVersionNumber" value="8" />
-  <property name="minorVersionNumber" value="x" />
+  <property name="minorVersionNumber" value="1" />
   <tstamp>
     <format property="DAYSTAMP" pattern="Mdd" />
   </tstamp>
