@@ -27,7 +27,6 @@
   <target name="hudson.basic" 
     depends="clean, compile, checkstyle.tool,  junit.tool, findbugs.tool, pmd.tool, jar, dist" 
     description="Fast build for production purposes. No sensors.">
-      <fail message="FindBugs reported warnings." if="findbugs.warningsfound"/>
   </target>
   
 </project>
