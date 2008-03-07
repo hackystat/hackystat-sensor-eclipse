@@ -75,7 +75,14 @@ public class SensorShellWrapper {
    * 
    */
   public void quit() {
-    this.shell.quit();
+    try {
+      this.shell.quit();
+    }
+    catch (SensorShellException e) {
+      EclipseSensorPlugin plugin = EclipseSensorPlugin.getDefault();
+      plugin.log(e);
+      processStatusLine("Hackystat Sensor : Error occurred during prior autosend. ");
+    }
   }
 
   /**
