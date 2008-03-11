@@ -6,51 +6,42 @@
      ant -Dpmd.version=3.8 -f pmd.build.xml pmd.tool
   </description>
 
-  <import file="build.xml"/>
-  <property environment="env"/>
+  <import file="build.xml" />
+  <property environment="env" />
   <property name="pmd.dir" location="${build.dir}/pmd" />
-  <property name="pmd.version" value="4.0"/>
-  <property name="pmd.jar" value="pmd-${pmd.version}.jar"/>
+  <property name="pmd.version" value="4.0" />
+  <property name="pmd.jar" value="pmd-${pmd.version}.jar" />
 
-  <target name="pmd" depends="pmd.tool, pmd.report" description="Runs the PMD tool, report, and sensor."/>
+  <target name="pmd" depends="pmd.tool, pmd.report, pmd.sensor" description="Runs the PMD tool, report, and sensor." />
 
   <target name="pmd.tool" description="Runs PMD over the source code to check for problems.">
     <!-- Fail this target if PMD is not installed. -->
-    <available file="${env.PMD_HOME}/lib/${pmd.jar}" property="pmd.available"/>
-    <fail unless="pmd.available" message="Error: PMD_HOME not set or ${pmd.jar} not found."/>
+    <available file="${env.PMD_HOME}/lib/${pmd.jar}" property="pmd.available" />
+    <fail unless="pmd.available" message="Error: PMD_HOME not set or ${pmd.jar} not found." />
     <taskdef name="pmd" classname="net.sourceforge.pmd.ant.PMDTask">
       <classpath>
-        <fileset dir="${env.PMD_HOME}/lib" includes="*.jar"/>
+        <fileset dir="${env.PMD_HOME}/lib" includes="*.jar" />
       </classpath>
     </taskdef>
 
     <!-- Run PMD -->
-    <mkdir dir="${pmd.dir}"/>
-    <pmd rulesetfiles="${basedir}/plugin/lib/pmd/hackystat.pmd.xml" 
-         shortFilenames="false" 
-         targetjdk="1.6" 
-         failonerror="${pmd.failonerror}"
-         failOnRuleViolation="${pmd.failonerror}" >
-      <formatter type="xml" toFile="${pmd.dir}/pmd.xml"/>
-      <formatter type="text" toConsole="true"/>
-      <fileset dir="${src.dir}" includes="**/*.java" excludes="**/jaxb/**,**/TestRunnerSensor.java,**/Test*.java"/>
-    </pmd>    
+    <mkdir dir="${pmd.dir}" />
+    <pmd rulesetfiles="${basedir}/plugin/lib/pmd/hackystat.pmd.xml" shortFilenames="false" targetjdk="1.6" failonerror="${pmd.failonerror}" failOnRuleViolation="${pmd.failonerror}">
+      <formatter type="xml" toFile="${pmd.dir}/pmd.xml" />
+      <formatter type="text" toConsole="true" />
+      <fileset dir="${src.dir}" includes="**/*.java" excludes="**/jaxb/**" />
+    </pmd>
   </target>
 
   <target name="pmd.report" description="Generates HTML reports on the PMD output.">
     <xslt in="${pmd.dir}/pmd.xml" style="${env.PMD_HOME}/etc/xslt/pmd-report-per-class.xslt" out="${pmd.dir}/pmd-report-per-class.html" />
   </target>
 
-  <target name="pmd.sensor" description="Sends CodeIssue data to Hackystat using the PMD sensor.">
-    <!-- Define the pmd sensor taskdef, failing the build if the sensor is not installed. -->
-    <available classname="org.hackystat.sensor.pmd.PmdSensor" property="pmd.sensor.available"/>
-    <fail unless="pmd.sensor.available" message="Error: PMD sensor not installed."/>
-    <taskdef name="hacky-pmd" classname="org.hackystat.sensor.pmd.PmdSensor"/>
-
-    <hacky-pmd verbose="${hackystat.verbose.mode}">
-      <fileset file="${pmd.dir}/pmd.xml"/>
-    </hacky-pmd>
-  </target>  
+  <target name="pmd.sensor" description="Send hackystat data about this PMD invocation." if="hackystat.enabled">
+    <fileset id="pmd.datafiles" dir="${pmd.dir}" includes="pmd.xml" />
+    <fileset id="pmd.sourcefiles" dir="${src.dir}" includes="**/*.java" excludes="**/jaxb/**" />
+    <hackystat.pmd pmd.datafiles.fileset="pmd.datafiles" pmd.sourcefiles.fileset="pmd.sourcefiles" verbose="${hackystat.verbose.mode}" />
+  </target>
 
 </project>
 
