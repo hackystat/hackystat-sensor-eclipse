@@ -25,12 +25,12 @@
     </taskdef>
     <!-- Run javancss -->
     <mkdir dir="${javancss.dir}" />
-    <javancss srcdir="${basedir}/src" abortOnFail="${javancss.failOnError}" includes="**/*.java" generateReport="true" outputfile="${javancss.dir}/javancss.xml" format="xml">
+    <javancss srcdir="${basedir}/plugin/src" abortOnFail="${javancss.failOnError}" includes="**/*.java" generateReport="true" outputfile="${javancss.dir}/javancss.xml" format="xml">
     </javancss>
   </target>
   
   <target name="javancss.sensor" unless="javancss.disabled" description="Sends JavaNCSS FileMetric data to Hackystat.">
-    <fileset id="javancss.sourcefiles" dir="${src.dir}" includes="**/*.java" />
+    <fileset id="javancss.sourcefiles" dir="${basedir}/plugin/src" includes="**/*.java" />
     <fileset id="javancss.datafiles" file="${javancss.dir}/javancss.xml" />
     <hackystat.javancss javancss.datafiles.fileset="javancss.datafiles" javancss.sourcefiles.fileset="javancss.sourcefiles" verbose="${hackystat.verbose.mode}" />
   </target>
