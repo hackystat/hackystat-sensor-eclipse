@@ -17,13 +17,13 @@
     <!-- Note that emma is forking in its JUnit as well. -->
     <junit printsummary="withOutAndErr" haltonfailure="${junit.haltonfailure}" fork="yes" failureproperty="junit.failed">
       <classpath>
-        <pathelement location="${build.dir}/classes" />
-        <path refid="compile.classpath" />
+        <pathelement location="${build.dir}/plugins/org.hackystat.sensor.eclipse/sensor.eclipse.jar" />
+        <path refid="compile.classpath"/>
         <fileset file="${env.JAVAMAIL_HOME}/mail.jar"/> 
       </classpath>
       <formatter type="xml" />
       <batchtest todir="${junit.dir}">
-        <fileset dir="${src.dir}" includes="**/Test*.java" />
+        <fileset dir="${src.dir}" includes="**/Test*.java" excludes="**/TestRunnerSensor.java"/>
       </batchtest>
     </junit>
   </target>
