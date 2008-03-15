@@ -21,6 +21,7 @@
   <import file="checkstyle.build.xml"/>
   <import file="junit.build.xml"/>
   <import file="emma.build.xml"/>
+  <import file="jar.build.xml"/>
   
       
   <target name="hudson.basic" 
