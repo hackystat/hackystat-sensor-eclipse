@@ -33,7 +33,6 @@
   <target name="hudson.daily.build" 
      depends="clean, compile, checkstyle.tool, junit.tool, findbugs.tool, pmd.tool, jar" 
      description="Builds and runs all QA stuff in preparation for sending sensor data.">
-      <fail message="FindBugs reported warnings." if="findbugs.warningsfound"/>
   </target>
 
   <target name="hudson.daily.junit" 
