@@ -20,9 +20,10 @@ public class PreferenceInitializer extends AbstractPreferenceInitializer {
     IPreferenceStore store = plugin.getPreferenceStore();
     store.setDefault(PreferenceConstants.P_SENSORBASE,  
         "http://dasha.ics.hawaii.edu:9876/sensorbase/");
-    store.setDefault(PreferenceConstants.P_EMAIL, "food@bar");
+    store.setDefault(PreferenceConstants.P_EMAIL, 
+        "eclipse-sensor-please-replace@hackystat.com");
     store.setDefault(PreferenceConstants.P_PASSWORD, "Y9Cpd1dK");
-    store.setDefault(PreferenceConstants.P_AUTOSEND_INTERVAL, "10");
+    store.setDefault(PreferenceConstants.P_AUTOSEND_INTERVAL, "30");
     
     //store.setDefault(PreferenceConstants.P_ENABLE_AUTOUPDATE, true);
 //    store.setDefault(PreferenceConstants.P_UPDATE_SITE, 
