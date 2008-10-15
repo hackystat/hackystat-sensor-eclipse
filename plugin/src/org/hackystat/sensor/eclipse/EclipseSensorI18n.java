@@ -10,7 +10,7 @@ import java.util.ResourceBundle;
  * @version $Id: EclipseSensorI18n.java,v 1.1.1.1 2005/10/20 23:56:56 johnson Exp $
  */
 public class EclipseSensorI18n {
-  /** the resource bundle file name */
+  /** the resource bundle file name. */
   private static final String RESOURCE_BUNDLE = "org.hackystat.sensor.eclipse.Resources";
   /** the resource bundle instance. */
   private static ResourceBundle bundle = ResourceBundle.getBundle(RESOURCE_BUNDLE);

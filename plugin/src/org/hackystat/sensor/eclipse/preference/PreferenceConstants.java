@@ -6,9 +6,9 @@ package org.hackystat.sensor.eclipse.preference;
  * @author Hongbing Kou
  */
 public final class PreferenceConstants {
-  /** Sensor base */
+  /** Sensor base. */
   public static final String P_SENSORBASE = "SensorBase";
-  /** User email */
+  /** User email. */
   public static final String P_EMAIL = "Email";
   /** Password to the sensorbase. */
   public static final String P_PASSWORD = "Password";

@@ -27,7 +27,7 @@ import org.osgi.framework.BundleContext;
  * @author Hongbing Kou
  */
 public class EclipseSensorPlugin extends AbstractUIPlugin implements BundleActivator {
-  /** The plug-in ID */
+  /** The plug-in ID. */
   public static final String PLUGIN_ID = "org.hackystat.sensor.eclipse";
   /** The shared instance (note that it is different from singleton). */
   public static EclipseSensorPlugin plugin;
@@ -84,7 +84,7 @@ public class EclipseSensorPlugin extends AbstractUIPlugin implements BundleActiv
   }
   
   /**
-   * Returns the shared instance
+   * Returns the shared instance.
    *
    * @return the shared instance
    */
@@ -93,7 +93,7 @@ public class EclipseSensorPlugin extends AbstractUIPlugin implements BundleActiv
   }
   
   /**
-   * Returns the shared instance
+   * Returns the shared instance.
    *
    * @return the shared instance
    */

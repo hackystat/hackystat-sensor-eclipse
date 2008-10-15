@@ -13,7 +13,7 @@ import org.eclipse.core.resources.IResource;
  * <li>PROJECT_OPEN - A project is opened. IResource can cast IProject.</li>
  * <li>PROJECT_CLOSE - A project is closed. IResource can cast IProject.</li>
  * <li>FILE_SAVE - A file is saved. IResource can cast IFile.</li>
- * 
+ *  </ul>
  * After getting IResource instance, using <code>getResource()</code>, the client
  * might manipulate the project path and/or workspace path, and so forth.
  * 
