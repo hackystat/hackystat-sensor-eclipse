@@ -19,35 +19,11 @@
   <import file="junit.build.xml"/>
   <import file="emma.build.xml"/>
   <import file="jar.build.xml"/>
-	  
-  <echo>
-    Hackystat SensorBase Verification Task
-    
-    System and Environment settings:
-      Ant version:     ${ant.version}
-      Checkstyle Home: ${env.CHECKSTYLE_HOME}
-      Emma Home:       ${env.EMMA_HOME}
-      FindBugs Home:   ${env.FINDBUGS_HOME} 
-      Java version:    ${java.version}
-      JUnit Home:      ${env.JUNIT_HOME}
-      PMD  Home:       ${env.PMD_HOME}
-      
-    This task fails the build unless all of the following are true:
-      * System compiles without warnings or errors.
-      * JavaDocs can be built without warnings or errors. 
-      * JUnit test cases all pass.
-      * Checkstyle of source code generates no warnings. 
-      * PMD generates no warnings. 
-      * FindBugs generates no warnings. 
-    
-    It also runs the Emma code coverage tool and prints a summary report. 
-  </echo>
-	
+
   <target name="verify.disable"/>
 	
   <target name="verify" 
-    depends="clean, compile, checkstyle.tool,  junit.tool, javadoc, findbugs.tool,
-    emma.tool,   pmd.tool, jar" 
+    depends="clean, compile, checkstyle.tool, junit.tool, findbugs.tool, pmd.tool" 
     description="Invoke analyzers, fail if any errors found.">
       <fail message="FindBugs reported warnings." if="findbugs.warningsfound"/>
   </target>
