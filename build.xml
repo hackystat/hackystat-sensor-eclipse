@@ -89,9 +89,12 @@
   <fail unless="equinox.available" message="Error: ${env.ECLIPSE_HOME}/plugins/${env.ECLIPSE_PLUGIN_EQUINOX} not found. The plugin is typically a jar file such as org.eclipse.equinox.launcher_1.0.1.R33x_v20070828.jar." />
 
   <!-- Verify that ECLIPSE_PLUGIN_PDE_BUILD is set. -->
+  
+  <!--
   <available file="${env.ECLIPSE_HOME}/plugins/${env.ECLIPSE_PLUGIN_PDE_BUILD}/scripts/build.xml" property="pde.build.available" />
   <fail unless="pde.build.available" message="Error: ${env.ECLIPSE_HOME}/plugins/${env.ECLIPSE_PLUGIN_PDE_BUILD}/scripts/build.xml not found. The plugin is located in the ECLIPSE_HOME/plugins. Its name is typically org.eclipse.pde.build_3.3.0.v20070612." />
-
+   -->
+  
   <target name="compile" depends="clean" description="Compiles the code.">
     <!-- 
       Build the feature and plugin in headless mode. Please be cautious that the version 

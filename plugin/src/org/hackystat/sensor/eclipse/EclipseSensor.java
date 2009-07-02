@@ -75,7 +75,7 @@ public class EclipseSensor {
   /** The number of seconds of the state change after which timer will wake up again. */
   private long timerStateChangeInterval = 30;
 
-  /** The number of seconds of the buffer transition after which time will wake up again */
+  /** The number of seconds of the buffer transition after which time will wake up again. */
   private long timeBuffTransInterval = 5;
 
   /** The ITextEdtior instance to hold the active editor's (file's) information. */
@@ -84,7 +84,7 @@ public class EclipseSensor {
   /** The active buffer to hold the buffer size of the active file. */
   private int activeBufferSize;
 
-  /** The ITextEditor instance to hold the previous active editor's information */
+  /** The ITextEditor instance to hold the previous active editor's information. */
   private ITextEditor previousTextEditor;
 
   /**
@@ -93,7 +93,7 @@ public class EclipseSensor {
    */
   private ITextEditor deactivatedTextEditor;
 
-  /** The threshold buffer size at an file activation to be compared with activeBufferSize */
+  /** The threshold buffer size at an file activation to be compared with activeBufferSize. */
   private int thresholdBufferSize;
 
   /** The boolean value to check if an previous file is modified. */
@@ -162,7 +162,7 @@ public class EclipseSensor {
    * @return The (singleton) instance.
    * @throws SensorShellException If problem occurred in instantiating the sensor.
    */
-  public synchronized static EclipseSensor getInstance() throws SensorShellException {
+  public static synchronized EclipseSensor getInstance() throws SensorShellException {
     if (theInstance == null) {
       theInstance = new EclipseSensor();
     }
@@ -494,7 +494,8 @@ public class EclipseSensor {
         String message = "BuffTrans : " + this.extractFileName(fromFile) + " --> " +
                           this.extractFileName(toFile);
 
-        this.addDevEvent(EclipseSensorConstants.DEVEVENT_EDIT, toFile, buffTranKeyValuePairs, message);
+        this.addDevEvent(EclipseSensorConstants.DEVEVENT_EDIT, toFile, 
+            buffTranKeyValuePairs, message);
         latestBuffTrans = buffTrans;
       }
     }
@@ -744,7 +745,8 @@ public class EclipseSensor {
           keyValueMap.put("Language", "java");
         }
         keyValueMap.put(EclipseSensorConstants.UNIT_TYPE, EclipseSensorConstants.FILE);
-        keyValueMap.put(EclipseSensorConstants.UNIT_NAME, EclipseSensor.this.extractFileName(fileResource));
+        keyValueMap.put(EclipseSensorConstants.UNIT_NAME, 
+            EclipseSensor.this.extractFileName(fileResource));
         EclipseSensor.this.addDevEvent(EclipseSensorConstants.DEVEVENT_EDIT, 
             fileResource, keyValueMap, fileResource.toString());
         IEditorPart activeEditorPart = part.getSite().getPage().getActiveEditor();

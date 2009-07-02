@@ -36,7 +36,7 @@
     <checkstyle config="${checkstyle.config.file.path}"
                 failOnViolation="${checkstyle.failOnViolation}" 
                 classpathref="checkstyle.classpath">
-      <fileset dir="${src.dir}" includes="**/*.java" excludes="**/jaxb/**" />
+      <fileset dir="${basedir}/plugin/src" includes="**/*.java" excludes="**/jaxb/**" />
       <formatter type="plain"/>
       <formatter type="xml" tofile="${checkstyle.dir}/checkstyle.xml" />
     </checkstyle>
