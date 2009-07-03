@@ -22,7 +22,7 @@
       </classpath>
       <formatter type="xml" />
       <batchtest todir="${junit.build.dir}">
-        <fileset dir="${src.dir}" includes="**/Test*.java" excludes="**/TestRunnerSensor.java"/>
+        <fileset dir="${basedir}/plugin/src" includes="**/Test*.java" excludes="**/TestRunnerSensor.java"/>
       </batchtest>
     </junit>
   </target>
