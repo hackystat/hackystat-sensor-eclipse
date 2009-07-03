@@ -41,7 +41,7 @@
         <path refid="compile.classpath" />
       </auxClasspath>
       <sourcePath>
-        <fileset dir="${src.dir}">
+        <fileset dir="${basedir}/plugin/src">
           <include name="**/*.java" />
         </fileset>
       </sourcePath>
