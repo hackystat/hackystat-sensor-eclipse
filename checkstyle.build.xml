@@ -25,6 +25,7 @@
   <path id="checkstyle.classpath">
     <pathelement path="${build.dir}/classes"/>
     <path refid="compile.classpath"/>
+    <path refid="eclipse.runtime"/>
   </path>
 
   <target name="checkstyle" depends="compile, checkstyle.tool, checkstyle.report, checkstyle.sensor" 

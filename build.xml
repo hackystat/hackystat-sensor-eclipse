@@ -80,6 +80,12 @@
     <path refid="junit.path" />
   </path>
 
+  <path id="eclipse.runtime">
+     <fileset dir="${env.ECLIPSE_HOME}/plugins">
+       <include name="*.jar"/>
+     </fileset>
+  </path>
+  
   <!-- Verify that ECLIPSE_HOME is set. -->
   <available file="${env.ECLIPSE_HOME}" property="eclipse.available" />
   <fail unless="eclipse.available" message="Error: ECLIPSE_HOME not set or directory ${env.ECLIPSE_HOME} not found. Eclipse 3.3 is required." />
