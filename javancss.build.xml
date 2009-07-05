@@ -27,7 +27,7 @@
     <javancss 
         generateReport="true"
         abortOnFail="${javancss.abortOnFail}"
-        srcdir="${src.dir}" 
+        srcdir="${basedir}/plugin" 
         includes="**/*.java" 
         outputfile="${javancss.dir}/javancss.xml" 
         format="xml">
@@ -47,7 +47,7 @@
       <!-- Send FileMetric complexity test data to Hackystat using the JavaNCSS sensor. -->
       <hacky-javancss verbose="${hackystat.verbose.mode}" failOnError="true">
         <sourcefiles>
-          <fileset dir="${src.dir}" includes="**/*.java"/>
+          <fileset dir="${basedir}/plugin" includes="**/*.java"/>
         </sourcefiles>
         <datafiles>
           <fileset file="${javancss.dir}/javancss.xml" />

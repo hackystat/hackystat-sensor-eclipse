@@ -26,12 +26,12 @@
   
       
   <target name="hudson.basic" 
-    depends="clean, compile, checkstyle.tool,  junit.tool, findbugs.tool, pmd.tool, jar, dist" 
+    depends="clean, compile" 
     description="Fast build for production purposes. No sensors.">
   </target>
   
   <target name="hudson.daily.build" 
-     depends="clean, compile, checkstyle.tool, junit.tool, findbugs.tool, pmd.tool, jar" 
+     depends="clean, compile" 
      description="Builds and runs all QA stuff in preparation for sending sensor data.">
   </target>
 
