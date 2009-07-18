@@ -36,7 +36,7 @@
   </target>
 
   <target name="hudson.daily.junit" 
-    depends="junit.tool, junit.sensor"  description="JUnit plus sensor."/>
+      description="No JUnit."/>
   
   <target name="hudson.daily.javancss"  
     depends="javancss.tool, javancss.sensor"  description="JavaNCSS plus sensor."/>
