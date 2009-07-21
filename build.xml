@@ -6,9 +6,11 @@
 
   <!-- Eclipse still needs env vars (for Eclipse libraries). -->
   <property environment="env" />
-  
-  <import file="common.build.xml"/>
-  
+
+  <!-- Override the default src.dir property with the true location of the sources. -->
+  <property name="src.dir" location="${basedir}/plugin/src" />
+  <import file="common.build.xml" />
+
   <target name="install-libraries" description="Install libraries needed for compilation">
     <ivy:retrieve organisation="org.junit" module="junit" revision="${junit.version}" pattern="${lib.dir}/junit/[artifact].[ext]" sync="true" inline="true" conf="default" log="download-only" transitive="false" type="jar" />
     <path id="junit.path" location="${lib.dir}/junit/junit.jar" />
@@ -51,12 +53,11 @@
   <fail unless="pde.build.available" message="Error: ${env.ECLIPSE_HOME}/plugins/${env.ECLIPSE_PLUGIN_PDE_BUILD}/scripts/build.xml not found. The plugin is located in the ECLIPSE_HOME/plugins. Its name is typically org.eclipse.pde.build_3.3.0.v20070612." />
    -->
 
-  <target name="compile" depends="clean, install-libraries" description="Compiles the code.">
+  <target name="compile" depends="install-ivy, install-libraries" description="Compiles the code.">
     <!-- 
       Build the feature and plugin in headless mode. Please be cautious that the version 
       numbers are from the Eclipse version you use. Be sure to change them if necessary. 
       -->
-
     <property name="featureDir" value="${basedir}/build/features/org.hackystat.sensor.eclipse" />
     <property name="pluginDir" value="${basedir}/build/plugins/org.hackystat.sensor.eclipse" />
 
