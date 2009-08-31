@@ -4,15 +4,25 @@
   </description>
 
   <import file="build.xml"/>
+  
+  <tstamp>
+    <format property="YMDSTAMP" pattern="yyyyMMdd" />
+  </tstamp>
+  <property name="plugin.version" value="${majorVersionNumber}.${minorVersionNumber}.v${YMDSTAMP}"/>
  
-  <target name="jar" depends="compile">   
-    <mkdir dir="${build.dir}/org.hackystat.sensor.eclipse" />
-    <copy todir="${build.dir}/org.hackystat.sensor.eclipse" failonerror="true" overwrite="false">
-      <fileset dir="${build.result.folder}">
+  <target name="jar" depends="compile">
+    <!-- Folder to hold everything that needs to be put in the org.hackystat.sensor.eclipse.*.jar. -->
+    <property name="plugin.bin.dir" value="${build.dir}/org.hackystat.sensor.eclipse" />
+    
+    <mkdir dir="${plugin.bin.dir}" />
+    
+    <!-- Gather required libraries and other plugin files. -->
+    <copy todir="${plugin.bin.dir}" failonerror="true" overwrite="false">
+      <fileset dir="${build.dir}">
         <include name="sensor.eclipse.jar" />
       </fileset>
     </copy>
-    <copy todir="${build.dir}/org.hackystat.sensor.eclipse" failonerror="true" overwrite="true">
+    <copy todir="${plugin.bin.dir}" failonerror="true" overwrite="true">
       <fileset dir="${basedir}/plugin">
         <include name="META-INF/" />
         <include name="plugin.xml" />
@@ -24,24 +34,28 @@
         <include name="lib/jsr173_1.0_api.jar" />
       </fileset>
     </copy>
+    <antcall target="updateVersion">
+      <param name="plugin.bin.dir" value="${plugin.bin.dir}"/>
+    </antcall>
     <antcall target="apitools.generation">
-      <param name="target.folder" value="${destination.temp.folder}/org.hackystat.sensor.eclipse_8.0.1123" />
+      <param name="target.folder" value="${build.dir}/org.hackystat.sensor.eclipse" />
       <param name="projectLocation" value="${basedir}" />
       <param name="projectName" value="${bundleId}_${bundleVersion}" />
-      <param name="binary.folders" value="${destination.temp.folder}/org.hackystat.sensor.eclipse_8.0.1123/sensor.eclipse.jar:${lib.dir}/jsr173_1.0_api.jar:${lib.dir}/sensorshell.jar:${lib.dir}jaxb-api.jar:${lib.dir}/jaxb-impl.jar:${lib.dir}/activation.jar" />
+      <param name="binary.folders" value="${build.dir}/org.hackystat.sensor.eclipse/sensor.eclipse.jar:${lib.dir}/jsr173_1.0_api.jar:${lib.dir}/sensorshell.jar:${lib.dir}jaxb-api.jar:${lib.dir}/jaxb-impl.jar:${lib.dir}/activation.jar" />
     </antcall>
     
   	<!-- Make a binary release on the top-level directory. -->
-    <tstamp>
-      <format property="YMDSTAMP" pattern="yyyyMMdd" />
-    </tstamp>
-    
-    <jar destfile="${basedir}/org.hackystat.sensor.eclipse_${majorVersionNumber}.${minorVersionNumber}.v${YMDSTAMP}.jar"
-      	 basedir="${build.dir}/org.hackystat.sensor.eclipse" filesetmanifest="merge">
-    </jar>
+    <jar destfile="${plugin.destination}/org.hackystat.sensor.eclipse_${plugin.version}.jar" 
+      	basedir="${build.dir}/org.hackystat.sensor.eclipse" filesetmanifest="merge" />
   </target>
   
-  <target name="apitools.generation" if="generateAPIDescription">
+  <target name="updateVersion" description="Updates the version number in the manifest.">
+    <replaceregexp match="[\d]+\.[\d]+\.\\v?[\d]+" replace="${plugin.version}" flags="g">
+      <fileset file="${plugin.bin.dir}/META-INF/MANIFEST.MF" />
+    </replaceregexp>
+  </target>
+  
+  <target name="apitools.generation" if="generateAPIDescription" description="Generates files required by ApiTooling for binary bundles.">
     <apitooling.apigeneration projectName="${projectName}" project="${projectLocation}" binary="${binary.folders}" target="${target.folder}" />
   </target>
 </project>
