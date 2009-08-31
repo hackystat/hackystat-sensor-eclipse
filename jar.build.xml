@@ -6,26 +6,42 @@
   <import file="build.xml"/>
  
   <target name="jar" depends="compile">   
-    <unzip src="${basedir}/build/I.Build/org.hackystat.sensor.eclipse-Build.zip" dest="${basedir}/build/I.Build/"/>
+    <mkdir dir="${build.dir}/org.hackystat.sensor.eclipse" />
+    <copy todir="${build.dir}/org.hackystat.sensor.eclipse" failonerror="true" overwrite="false">
+      <fileset dir="${build.result.folder}">
+        <include name="sensor.eclipse.jar" />
+      </fileset>
+    </copy>
+    <copy todir="${build.dir}/org.hackystat.sensor.eclipse" failonerror="true" overwrite="true">
+      <fileset dir="${basedir}/plugin">
+        <include name="META-INF/" />
+        <include name="plugin.xml" />
+        <include name="sensor.eclipse.jar" />
+        <include name="lib/sensorshell.jar" />
+        <include name="lib/activation.jar" />
+        <include name="lib/jaxb-api.jar" />
+        <include name="lib/jaxb-impl.jar" />
+        <include name="lib/jsr173_1.0_api.jar" />
+      </fileset>
+    </copy>
+    <antcall target="apitools.generation">
+      <param name="target.folder" value="${destination.temp.folder}/org.hackystat.sensor.eclipse_8.0.1123" />
+      <param name="projectLocation" value="${basedir}" />
+      <param name="projectName" value="${bundleId}_${bundleVersion}" />
+      <param name="binary.folders" value="${destination.temp.folder}/org.hackystat.sensor.eclipse_8.0.1123/sensor.eclipse.jar:${lib.dir}/jsr173_1.0_api.jar:${lib.dir}/sensorshell.jar:${lib.dir}jaxb-api.jar:${lib.dir}/jaxb-impl.jar:${lib.dir}/activation.jar" />
+    </antcall>
     
-    <!-- Create the plugin release for the update site -->
-    <jar destfile="${basedir}/site/plugins/org.hackystat.sensor.eclipse_${version}.jar"
-      	 manifest="${basedir}/build/I.Build/org.hackystat.sensor.eclipse/plugins/org.hackystat.sensor.eclipse_${version}/META-INF/MANIFEST.MF">
-    	<fileset dir="${basedir}/build/I.Build/org.hackystat.sensor.eclipse/plugins/org.hackystat.sensor.eclipse_${version}"/>
-    </jar>
-  	
-    <!-- Create the feature release for the update site -->
-  	<jar destfile="${basedir}/site/features/org.hackystat.sensor.eclipse_${version}.jar">
-        <fileset dir="${basedir}/build/I.Build/org.hackystat.sensor.eclipse/features/org.hackystat.sensor.eclipse_${version}"/>
-    </jar>
-  	
   	<!-- Make a binary release on the top-level directory. -->
     <tstamp>
       <format property="YMDSTAMP" pattern="yyyyMMdd" />
     </tstamp>
+    
     <jar destfile="${basedir}/org.hackystat.sensor.eclipse_${majorVersionNumber}.${minorVersionNumber}.v${YMDSTAMP}.jar"
-      	 manifest="${basedir}/build/I.Build/org.hackystat.sensor.eclipse/plugins/org.hackystat.sensor.eclipse_${version}/META-INF/MANIFEST.MF">
-    	<fileset dir="${basedir}/build/I.Build/org.hackystat.sensor.eclipse/plugins/org.hackystat.sensor.eclipse_${version}"/>
+      	 basedir="${build.dir}/org.hackystat.sensor.eclipse" filesetmanifest="merge">
     </jar>
+  </target>
+  
+  <target name="apitools.generation" if="generateAPIDescription">
+    <apitooling.apigeneration projectName="${projectName}" project="${projectLocation}" binary="${binary.folders}" target="${target.folder}" />
   </target>
 </project>

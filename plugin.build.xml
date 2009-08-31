@@ -1,30 +1,40 @@
-<project name="plugin" default="sensor.eclipse.jar">
+<project name="plugin" default="build.update.jar">
   <description>
   Provides the target for building a plugin jar file of the Eclipse sensor.
   </description>
 
   <import file="build.xml" />
 
-  <property name="eclipse.plugins.dir" location="${env.ECLIPSE_HOME}/plugins" />
-  <property name="src.dir" location="plugin/src"/>
-  <property name="lib.dir" location="plugin/lib"/>
+  <property name="p2.build.repo" value="file:${buildDirectory}/buildRepo" />
+  <property name="bundleId" value="org.hackystat.sensor.eclipse" />
+  <property name="bundleVersion" value="8.0.1123" />
+  <property name="p2.publishonerror" value="false" />
 
-  <condition property="bundleJavacTarget" value="1.5">
-    <isset property="J2SE-1.5" />
+  <!-- Compiler settings. -->
+  <property name="javacFailOnError" value="true" />
+  <property name="javacDebugInfo" value="on" />
+  <property name="javacVerbose" value="false" />
+  <property name="logExtension" value=".log" />
+  <property name="compilerArg" value="" />
+  <property name="javacSource" value="1.6" />
+  <property name="javacTarget" value="1.6" />
+
+  <condition property="bundleBootClasspath" value="${JavaSE-1.6}">
+    <isset property="JavaSE-1.6" />
   </condition>
-  <property name="bundleJavacTarget" value="1.5" />
-  <property name="bundleJavacSource" value="1.5" />
+  <condition property="bundleJavacSource" value="1.6">
+    <isset property="JavaSE-1.6" />
+  </condition>
+  <condition property="bundleJavacTarget" value="1.6">
+    <isset property="JavaSE-1.6" />
+  </condition>
+  <property name="bundleJavacSource" value="${javacSource}" />
+  <property name="bundleJavacTarget" value="${javacTarget}" />
+  <property name="bundleBootClasspath" value="${bootclasspath}" />
 
   <target name="init" depends="properties">
-    <condition property="pluginTemp" value="${buildTempFolder}/plugins">
-      <isset property="buildTempFolder" />
-    </condition>
-    <property name="pluginTemp" value="${basedir}" />
-    <condition property="build.result.folder" value="${pluginTemp}/org.hackystat.sensor.eclipse_8.0.1123">
-      <isset property="buildTempFolder" />
-    </condition>
-    <property name="build.result.folder" value="${basedir}" />
-    <property name="temp.folder" value="${basedir}/temp.folder" />
+    <property name="build.result.folder" value="${build.dir}" />
+    <property name="temp.folder" value="${build.dir}" />
     <property name="plugin.destination" value="${basedir}" />
     <condition property="p2.publish.parts" value="true">
       <istrue value="${p2.gathering}" />
@@ -40,115 +50,41 @@
 
   <target name="properties" if="eclipse.running">
     <property name="build.compiler" value="org.eclipse.jdt.core.JDTCompilerAdapter" />
+  </target>
 
+  <target name="build.update.jar" depends="init" description="Build the plug-in: org.hackystat.sensor.eclipse for an update site.">
+    <delete dir="${temp.folder}" />
+    <mkdir dir="${temp.folder}" />
+    <antcall target="build.jars" />
+    <antcall target="gather.bin.parts">
+      <param name="destination.temp.folder" value="${temp.folder}/" />
+    </antcall>
+    <jar destfile="${plugin.destination}/org.hackystat.sensor.eclipse_8.0.1123.jar" basedir="${temp.folder}/org.hackystat.sensor.eclipse_8.0.1123" filesetmanifest="merge" />
+    <delete dir="${temp.folder}" />
+  </target>
+
+  <target name="build.jars" depends="init" description="Compile classes and build nested jars for the plug-in: org.hackystat.sensor.eclipse.">
+    <delete file="${compilation.problem.marker}" quiet="true" />
+    <available property="sensor.eclipse.jar" file="${build.result.folder}/sensor.eclipse.jar" />
+    <antcall target="sensor.eclipse.jar" />
   </target>
 
   <target name="sensor.eclipse.jar" depends="init" unless="sensor.eclipse.jar" description="Create jar: org.hackystat.sensor.eclipse sensor.eclipse.jar.">
     <delete dir="${temp.folder}/sensor.eclipse.jar.bin" />
     <mkdir dir="${temp.folder}/sensor.eclipse.jar.bin" />
     <path id="sensor.eclipse.jar.classpath">
-      <pathelement path="${eclipse.plugins.dir}/org.eclipse.core.runtime_3.5.0.v20090525.jar" />
-      <pathelement path="${eclipse.plugins.dir}/org.eclipse.osgi_3.5.0.v20090520.jar" />
-      <pathelement path="${eclipse.plugins.dir}/org.eclipse.equinox.common_3.5.0.v20090520-1800.jar" />
-      <pathelement path="${eclipse.plugins.dir}/org.eclipse.core.jobs_3.4.100.v20090429-1800.jar" />
-      <pathelement path="${eclipse.plugins.dir}/org.eclipse.core.runtime.compatibility.registry_3.2.200.v20090429-1800/runtime_registry_compatibility.jar" />
-      <pathelement path="${eclipse.plugins.dir}/org.eclipse.core.runtime.compatibility.registry_3.2.200.v20090429-1800" />
-      <pathelement path="${eclipse.plugins.dir}/org.eclipse.equinox.registry_3.4.100.v20090520-1800.jar" />
-      <pathelement path="${eclipse.plugins.dir}/org.eclipse.equinox.preferences_3.2.300.v20090520-1800.jar" />
-      <pathelement path="${eclipse.plugins.dir}/org.eclipse.core.contenttype_3.4.0.v20090429-1800.jar" />
-      <pathelement path="${eclipse.plugins.dir}/org.eclipse.core.runtime.compatibility.auth_3.2.100.v20090413.jar" />
-      <pathelement path="${eclipse.plugins.dir}/org.eclipse.equinox.app_1.2.0.v20090520-1800.jar" />
-      <pathelement path="${eclipse.plugins.dir}/org.eclipse.osgi.services_3.2.0.v20090520-1800.jar" />
-      <pathelement path="${eclipse.plugins.dir}/javax.servlet_2.5.0.v200806031605.jar" />
-      <pathelement path="${eclipse.plugins.dir}/org.eclipse.core.resources_3.5.0.v20090512.jar" />
-      <pathelement path="${eclipse.plugins.dir}/org.eclipse.core.resources.compatibility_3.4.0.v20090505.jar" />
-      <pathelement path="${eclipse.plugins.dir}/org.eclipse.ant.core_3.2.100.v20090520.jar" />
-      <pathelement path="${eclipse.plugins.dir}/org.eclipse.core.variables_3.2.200.v20090521.jar" />
-      <pathelement path="${eclipse.plugins.dir}/org.eclipse.core.expressions_3.4.100.v20090429-1800.jar" />
-      <pathelement path="${eclipse.plugins.dir}/org.eclipse.core.filesystem_1.2.0.v20090507.jar" />
-      <pathelement path="${eclipse.plugins.dir}/org.eclipse.core.filesystem.macosx_1.1.0.v20090112.jar" />
-      <pathelement path="${eclipse.plugins.dir}/org.eclipse.jdt.core_3.5.0.v_963.jar" />
-      <pathelement path="${eclipse.plugins.dir}/org.eclipse.jdt.compiler.apt_1.0.200.v20090528-1135.jar" />
-      <pathelement path="${eclipse.plugins.dir}/org.eclipse.jdt.compiler.tool_1.0.100.v_963.jar" />
-      <pathelement path="${eclipse.plugins.dir}/org.eclipse.text_3.5.0.v20090513-2000.jar" />
-      <pathelement path="${eclipse.plugins.dir}/com.ibm.icu_4.0.1.v20090415.jar" />
-      <pathelement path="${eclipse.plugins.dir}/org.eclipse.core.commands_3.5.0.I20090525-2000.jar" />
-      <pathelement path="${eclipse.plugins.dir}/org.eclipse.team.core_3.5.0.I20090527-0620.jar" />
-      <pathelement path="${eclipse.plugins.dir}/org.eclipse.jdt.junit_3.5.0.v20090526-2000.jar" />
-      <pathelement path="${eclipse.plugins.dir}/org.eclipse.ui.ide_3.5.0.I20090525-2000.jar" />
-      <pathelement path="${eclipse.plugins.dir}/org.eclipse.help_3.4.0.v20090526.jar" />
-      <pathelement path="${eclipse.plugins.dir}/org.eclipse.ui_3.5.0.I20090604-2000.jar" />
-      <pathelement path="${eclipse.plugins.dir}/org.eclipse.ui.cocoa_1.0.0.I20090525-2000.jar" />
-      <pathelement path="${eclipse.plugins.dir}/org.eclipse.swt_3.5.0.v3550b.jar" />
-      <pathelement path="${eclipse.plugins.dir}/org.eclipse.swt.cocoa.macosx_3.5.0.v3550b.jar" />
-      <pathelement path="${eclipse.plugins.dir}/org.eclipse.jface_3.5.0.I20090525-2000.jar" />
-      <pathelement path="${eclipse.plugins.dir}/org.eclipse.ui.workbench_3.5.0.I20090603-2000.jar" />
-      <pathelement path="${eclipse.plugins.dir}/org.eclipse.ui.workbench.compatibility_3.2.0.I20090429-1800/compatibility.jar" />
-      <pathelement path="${eclipse.plugins.dir}/org.eclipse.ui.workbench.compatibility_3.2.0.I20090429-1800/e4-workbench.jar" />
-      <pathelement path="${eclipse.plugins.dir}/org.eclipse.ui.workbench.compatibility_3.2.0.I20090429-1800" />
-      <pathelement path="${eclipse.plugins.dir}/org.eclipse.jface.databinding_1.3.0.I20090525-2000.jar" />
-      <pathelement path="${eclipse.plugins.dir}/org.eclipse.core.databinding.observable_1.2.0.I20090604-2000.jar" />
-      <pathelement path="${eclipse.plugins.dir}/org.eclipse.core.databinding.property_1.2.0.I20090526-2000.jar" />
-      <pathelement path="${eclipse.plugins.dir}/org.eclipse.core.databinding_1.2.0.I20090604-2000.jar" />
-      <pathelement path="${eclipse.plugins.dir}/org.eclipse.ui.views_3.4.0.I20090525-2000.jar" />
-      <pathelement path="${eclipse.plugins.dir}/org.eclipse.jface.text_3.5.0.v20090602.jar" />
-      <pathelement path="${eclipse.plugins.dir}/org.eclipse.ui.forms_3.4.0.v20090526.jar" />
-      <pathelement path="${eclipse.plugins.dir}/org.eclipse.equinox.p2.engine_1.0.100.v20090525.jar" />
-      <pathelement path="${eclipse.plugins.dir}/org.eclipse.equinox.p2.core_1.0.100.v20090520-1905.jar" />
-      <pathelement path="${eclipse.plugins.dir}/org.eclipse.equinox.p2.metadata_1.0.100.v20090525.jar" />
-      <pathelement path="${eclipse.plugins.dir}/org.eclipse.equinox.p2.metadata.repository_1.0.100.v20090525.jar" />
-      <pathelement path="${eclipse.plugins.dir}/org.eclipse.equinox.p2.repository_1.0.0.v20090601-1921.jar" />
-      <pathelement path="${eclipse.plugins.dir}/org.eclipse.equinox.security_1.0.100.v20090520-1800.jar" />
-      <pathelement path="${eclipse.plugins.dir}/org.eclipse.equinox.security.macosx_1.100.0.v20090520-1800.jar" />
-      <pathelement path="${eclipse.plugins.dir}/org.eclipse.ecf.filetransfer_3.0.0.v20090604-1131.jar" />
-      <pathelement path="${eclipse.plugins.dir}/org.eclipse.ecf_3.0.0.v20090604-1131.jar" />
-      <pathelement path="${eclipse.plugins.dir}/org.eclipse.ecf.ssl_1.0.0.v20090604-1131.jar" />
-      <pathelement path="${eclipse.plugins.dir}/org.eclipse.equinox.concurrent_1.0.0.v20090520-1800.jar" />
-      <pathelement path="${eclipse.plugins.dir}/org.eclipse.ecf.identity_3.0.0.v20090604-1131.jar" />
-      <pathelement path="${eclipse.plugins.dir}/org.eclipse.equinox.p2.artifact.repository_1.0.100.v20090527-1812.jar" />
-      <pathelement path="${eclipse.plugins.dir}/org.eclipse.equinox.p2.jarprocessor_1.0.100.v20090520-1905.jar" />
-      <pathelement path="${eclipse.plugins.dir}/org.eclipse.ui.workbench.texteditor_3.5.0.v20090603.jar" />
-      <pathelement path="${eclipse.plugins.dir}/org.eclipse.compare.core_3.5.0.I20090430-0408.jar" />
-      <pathelement path="${eclipse.plugins.dir}/org.eclipse.ui.editors_3.5.0.v20090527-2000.jar" />
-      <pathelement path="${eclipse.plugins.dir}/org.eclipse.core.filebuffers_3.5.0.v20090526-2000.jar" />
-      <pathelement path="${eclipse.plugins.dir}/org.eclipse.debug.core_3.5.0.v20090526-1600.jar" />
-      <pathelement path="${eclipse.plugins.dir}/org.eclipse.debug.ui_3.5.0.v20090603.jar" />
-      <pathelement path="${eclipse.plugins.dir}/org.eclipse.ui.console_3.4.0.v20090513.jar" />
-      <pathelement path="${eclipse.plugins.dir}/org.eclipse.jdt.ui_3.5.0.v20090604.jar" />
-      <pathelement path="${eclipse.plugins.dir}/org.eclipse.search_3.5.0.v20090526-2000.jar" />
-      <pathelement path="${eclipse.plugins.dir}/org.eclipse.ltk.core.refactoring_3.5.0.v20090513-2000.jar" />
-      <pathelement path="${eclipse.plugins.dir}/org.eclipse.ltk.ui.refactoring_3.4.100.v20090604.jar" />
-      <pathelement path="${eclipse.plugins.dir}/org.eclipse.ui.navigator_3.4.0.I20090525-2000.jar" />
-      <pathelement path="${eclipse.plugins.dir}/org.eclipse.compare_3.5.0.I20090514-0808.jar" />
-      <pathelement path="${eclipse.plugins.dir}/org.eclipse.team.ui_3.5.0.I20090430-0408.jar" />
-      <pathelement path="${eclipse.plugins.dir}/org.eclipse.ui.navigator.resources_3.4.0.I20090525-2000.jar" />
-      <pathelement path="${eclipse.plugins.dir}/org.eclipse.ui.views.properties.tabbed_3.5.0.I20090429-1800.jar" />
-      <pathelement path="${eclipse.plugins.dir}/org.eclipse.jdt.launching_3.5.0.v20090527.jar" />
-      <pathelement path="${eclipse.plugins.dir}/org.eclipse.jdt.debug_3.5.0.v20090526/jdi.jar" />
-      <pathelement path="${eclipse.plugins.dir}/org.eclipse.jdt.debug_3.5.0.v20090526/jdimodel.jar" />
-      <pathelement path="${eclipse.plugins.dir}/org.eclipse.jdt.debug_3.5.0.v20090526/tools.jar" />
-      <pathelement path="${eclipse.plugins.dir}/org.eclipse.jdt.core.manipulation_1.3.0.v20090603.jar" />
-      <pathelement path="${eclipse.plugins.dir}/org.eclipse.jdt.debug.ui_3.4.0.v20090527.jar" />
-      <pathelement path="${eclipse.plugins.dir}/org.eclipse.jdt.junit.runtime_3.4.100.v20090513-2000.jar" />
-      <pathelement path="${eclipse.plugins.dir}/org.junit_3.8.2.v20090203-1005/junit.jar" />
-      <pathelement path="${eclipse.plugins.dir}/org.eclipse.equinox.simpleconfigurator.manipulator_1.0.100.v20090520-1905.jar" />
-      <pathelement path="${eclipse.plugins.dir}/org.eclipse.equinox.frameworkadmin.equinox_1.0.100.v20090520-1905.jar" />
-      <pathelement path="${eclipse.plugins.dir}/org.eclipse.equinox.frameworkadmin_1.0.100.v20090520-1905.jar" />
-      <pathelement path="${eclipse.plugins.dir}/org.eclipse.equinox.simpleconfigurator_1.0.100.v20090520-1905.jar" />
-      <pathelement path="${eclipse.plugins.dir}/org.eclipse.update.ui_3.2.200.v20090213.jar" />
-      <pathelement path="${eclipse.plugins.dir}/org.eclipse.update.core_3.2.300.v20090525.jar" />
-      <pathelement path="${eclipse.plugins.dir}/org.eclipse.update.configurator_3.3.0.v20090312.jar" />
-      <pathelement path="${eclipse.plugins.dir}/org.eclipse.core.net_1.2.0.I20090522-1010.jar" />
-      <pathelement path="${eclipse.plugins.dir}/org.junit4_4.5.0.v20090423/junit.jar" />
-      <pathelement path="${eclipse.plugins.dir}/org.hamcrest.core_1.1.0.v20090501071000.jar" />
-      <pathelement path="${env.HACKYSTAT_SENSORSHELL_HOME}/sensorshell.jar" />
+      <fileset dir="${env.ECLIPSE_HOME}/plugins" includes="*.jar" />
+      <pathelement path="${lib.dir}/sensorshell.jar" />
       <pathelement path="${lib.dir}/activation.jar" />
       <pathelement path="${lib.dir}/jaxb-api.jar" />
       <pathelement path="${lib.dir}/jaxb-impl.jar" />
       <pathelement path="${lib.dir}/jsr173_1.0_api.jar" />
+      <fileset file="${env.JUNIT_HOME}/junit-${junit.version}.jar" />
     </path>
+
     <!-- compile the source code -->
-    <javac destdir="${temp.folder}/sensor.eclipse.jar.bin" failonerror="${javacFailOnError}" verbose="${javacVerbose}" debug="${javacDebugInfo}" includeAntRuntime="no" bootclasspath="${bundleBootClasspath}" source="${bundleJavacSource}" target="${bundleJavacTarget}">
+    <javac destdir="${temp.folder}/sensor.eclipse.jar.bin" failonerror="${javacFailOnError}" verbose="${javacVerbose}" debug="${javacDebugInfo}" 
+      					includeAntRuntime="no" bootclasspath="${bundleBootClasspath}" source="${bundleJavacSource}" target="${bundleJavacTarget}">
       <compilerarg line="${compilerArg}" compiler="${build.compiler}" />
       <classpath refid="sensor.eclipse.jar.classpath" />
       <src path="${src.dir}" />
@@ -163,16 +99,49 @@
       </fileset>
     </copy>
     <mkdir dir="${build.result.folder}" />
-    
-    <tstamp>
-      <format property="YMDSTAMP" pattern="yyyyMMdd" />
-    </tstamp>
-    
-    <jar destfile="${build.result.folder}/org.hackystat.sensor.eclipse_${majorVersionNumber}.${minorVersionNumber}.v${YMDSTAMP}.jar" basedir="${temp.folder}/sensor.eclipse.jar.bin" />
-    <delete dir="${temp.folder}" />
+    <jar destfile="${build.result.folder}/sensor.eclipse.jar" basedir="${temp.folder}/sensor.eclipse.jar.bin" />
+    <delete dir="${temp.folder}/sensor.eclipse.jar.bin" />
   </target>
 
   <target name="checkCompilationResults" if="compilation.error.occured">
     <echo file="${compilation.problem.marker}" message="org.hackystat.sensor.eclipse : compilation.error.occured=${compilation.error.occured}" />
+  </target>
+
+  <target name="gather.bin.parts" depends="init" if="destination.temp.folder">
+    <mkdir dir="${destination.temp.folder}/org.hackystat.sensor.eclipse_8.0.1123" />
+    <copy todir="${destination.temp.folder}/org.hackystat.sensor.eclipse_8.0.1123" failonerror="true" overwrite="false">
+      <fileset dir="${build.result.folder}">
+        <include name="sensor.eclipse.jar" />
+      </fileset>
+    </copy>
+    <copy todir="${destination.temp.folder}/org.hackystat.sensor.eclipse_8.0.1123" failonerror="true" overwrite="true">
+      <fileset dir="${basedir}/plugin">
+        <include name="META-INF/" />
+        <include name="plugin.xml" />
+        <include name="sensor.eclipse.jar" />
+        <include name="lib/sensorshell.jar" />
+        <include name="lib/activation.jar" />
+        <include name="lib/jaxb-api.jar" />
+        <include name="lib/jaxb-impl.jar" />
+        <include name="lib/jsr173_1.0_api.jar" />
+      </fileset>
+    </copy>
+    <antcall target="apitools.generation">
+      <param name="target.folder" value="${destination.temp.folder}/org.hackystat.sensor.eclipse_8.0.1123" />
+      <param name="projectLocation" value="${basedir}" />
+      <param name="projectName" value="${bundleId}_${bundleVersion}" />
+      <param name="binary.folders" value="${destination.temp.folder}/org.hackystat.sensor.eclipse_8.0.1123/sensor.eclipse.jar:${lib.dir}/jsr173_1.0_api.jar:${lib.dir}/sensorshell.jar:${lib.dir}jaxb-api.jar:${lib.dir}/jaxb-impl.jar:${lib.dir}/activation.jar" />
+    </antcall>
+  </target>
+
+  <target name="clean" depends="init" description="Clean the plug-in: org.hackystat.sensor.eclipse of all the jars and logs created.">
+    <delete file="${build.result.folder}/sensor.eclipse.jar" />
+    <delete file="${plugin.destination}/org.hackystat.sensor.eclipse_8.0.1123.jar" />
+    <delete dir="${temp.folder}" />
+    <delete file="${compilation.problem.marker}" quiet="true" />
+  </target>
+
+  <target name="apitools.generation" if="generateAPIDescription">
+    <apitooling.apigeneration projectName="${projectName}" project="${projectLocation}" binary="${binary.folders}" target="${target.folder}" />
   </target>
 </project>

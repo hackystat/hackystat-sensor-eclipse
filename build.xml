@@ -1,4 +1,4 @@
-<project name="build" default="compile">
+<project name="build" default="compile" xmlns:ivy="antlib:org.apache.ivy.ant">
   <description>
   The basic build file for the Hackystat Eclipse headless build. Note that the Eclipse
   PDE can build the Eclipse sensor using the plugin editor.
@@ -32,7 +32,7 @@
   <!-- Basic properties for this system. -->
   <property name="system.name" value="hackystat-sensor-eclipse" />
   <property name="majorVersionNumber" value="8" />
-  <property name="minorVersionNumber" value="1" />
+  <property name="minorVersionNumber" value="3" />
   <tstamp>
     <format property="DAYSTAMP" pattern="Mdd" />
   </tstamp>
@@ -63,56 +63,91 @@
   <available file="${env.ECLIPSE_HOME}" property="eclipse.available" />
   <fail unless="eclipse.available" message="Error: ECLIPSE_HOME not set. Eclipse 3.5 is required." />
 
-  <!-- Verify that ECLIPSE_PLUGIN_EQUINOX is set. -->
-  <!--
-  <available file="${env.ECLIPSE_HOME}/plugins/${env.ECLIPSE_PLUGIN_EQUINOX}" property="equinox.available" />
-  <fail unless="equinox.available" message="Error: ECLIPSE_PLUGIN_EQUINOX or ECLIPSE_HOME not set. The plugin is typically a jar file such as org.eclipse.equinox.launcher_1.0.1.R33x_v20070828.jar." />
-  -->
-
-  <!-- Verify that ECLIPSE_PLUGIN_PDE_BUILD is set. -->
-  <!--
-  <available file="${env.ECLIPSE_HOME}/plugins/${env.ECLIPSE_PLUGIN_PDE_BUILD}/scripts/build.xml" property="pde.build.available" />
-  <fail unless="pde.build.available" message="Error: ECLIPSE_PLUGIN_PDE_BUILD or ECLIPSE_HOME not set. The plugin is located in the ECLIPSE_HOME/plugins. Its name is typically org.eclipse.pde.build_3.3.0.v20070612." />
-  -->
-
   <!-- Make sure that the SensorShell is available . -->
   <available file="${env.HACKYSTAT_SENSORSHELL_HOME}/sensorshell.jar" property="hackystat.sensorshell.available" />
   <fail message="This package requires the Hackystat SensorShell to be installed and HACKYSTAT_SENSORSHELL_HOME defined" unless="hackystat.sensorshell.available" />
 
-  <target name="compile" depends="clean" description="Compiles the code.">
-    <!-- 
-      Build the feature and plugin in headless mode. Please be cautious that the version 
-      numbers are from the Eclipse version you use. Be sure to change them if necessary. 
-      -->
+  <property name="p2.build.repo" value="file:${buildDirectory}/buildRepo" />
+  <property name="bundleId" value="org.hackystat.sensor.eclipse" />
+  <property name="bundleVersion" value="8.0.1123" />
+  <property name="p2.publishonerror" value="false" />
 
-    <property name="featureDir" value="${basedir}/build/features/org.hackystat.sensor.eclipse" />
-    <property name="pluginDir" value="${basedir}/build/plugins/org.hackystat.sensor.eclipse" />
+  <!-- Compiler settings. -->
+  <property name="javacFailOnError" value="true" />
+  <property name="javacDebugInfo" value="on" />
+  <property name="javacVerbose" value="false" />
+  <property name="logExtension" value=".log" />
+  <property name="compilerArg" value="" />
+  <property name="javacSource" value="1.6" />
+  <property name="javacTarget" value="1.6" />
 
-    <!-- Preparing feature -->
-    <mkdir dir="${featureDir}" />
-    <copy todir="${featureDir}">
-      <fileset dir="${basedir}/feature" />
+  <condition property="bundleBootClasspath" value="${JavaSE-1.6}">
+    <isset property="JavaSE-1.6" />
+  </condition>
+  <condition property="bundleJavacSource" value="1.6">
+    <isset property="JavaSE-1.6" />
+  </condition>
+  <condition property="bundleJavacTarget" value="1.6">
+    <isset property="JavaSE-1.6" />
+  </condition>
+  <property name="bundleJavacSource" value="${javacSource}" />
+  <property name="bundleJavacTarget" value="${javacTarget}" />
+  <property name="bundleBootClasspath" value="${bootclasspath}" />
+
+  <target name="init" depends="properties">
+    <property name="build.result.folder" value="${build.dir}" />
+    <property name="plugin.destination" value="${basedir}" />
+    <condition property="p2.publish.parts" value="true">
+      <istrue value="${p2.gathering}" />
+    </condition>
+    <property name="compilation.problem.marker" value="${build.result.folder}/compilation.problem" />
+    <condition property="compilation.problem.marker.exists" value="true">
+      <and>
+        <available file="${compilation.problem.marker}" />
+        <isfalse value="p2.publishonerror" />
+      </and>
+    </condition>
+  </target>
+  
+  <target name="properties" if="eclipse.running">
+    <property name="build.compiler" value="org.eclipse.jdt.core.JDTCompilerAdapter" />
+  </target>
+  
+  <target name="compile" depends="clean, downloadSensorshellJar, init" description="Compile classes and build nested jars for the plug-in: org.hackystat.sensor.eclipse.">
+    <mkdir dir="${build.dir}/sensor.eclipse.jar.bin" />
+    <path id="sensor.eclipse.jar.classpath">
+      <fileset dir="${env.ECLIPSE_HOME}/plugins" includes="*.jar" />
+      <pathelement path="${lib.dir}/sensorshell.jar" />
+      <pathelement path="${lib.dir}/activation.jar" />
+      <pathelement path="${lib.dir}/jaxb-api.jar" />
+      <pathelement path="${lib.dir}/jaxb-impl.jar" />
+      <pathelement path="${lib.dir}/jsr173_1.0_api.jar" />
+      <fileset file="${env.JUNIT_HOME}/junit-${junit.version}.jar" />
+    </path>
+
+    <!-- compile the source code -->
+    <javac destdir="${build.dir}/sensor.eclipse.jar.bin" failonerror="${javacFailOnError}" verbose="${javacVerbose}" debug="${javacDebugInfo}" 
+      					includeAntRuntime="no" bootclasspath="${bundleBootClasspath}" source="${bundleJavacSource}" target="${bundleJavacTarget}">
+      <compilerarg line="${compilerArg}" compiler="${build.compiler}" />
+      <classpath refid="sensor.eclipse.jar.classpath" />
+      <src path="${src.dir}" />
+      <compilerarg line="-log '${build.dir}/sensor.eclipse.jar.bin${logExtension}'" compiler="org.eclipse.jdt.core.JDTCompilerAdapter" />
+    </javac>
+    <antcall target="checkCompilationResults" />
+    <!-- Copy necessary resources -->
+    <copy todir="${build.dir}/sensor.eclipse.jar.bin" failonerror="true" overwrite="false">
+      <fileset dir="${src.dir}">
+        <exclude name="**/*.java" />
+        <exclude name="**/package.htm*" />
+      </fileset>
     </copy>
-
-    <!-- Preparing plugin -->
-    <mkdir dir="${pluginDir}" />
-    <copy todir="${pluginDir}">
-      <fileset dir="${basedir}/plugin" />
-    </copy>
-
-    <!-- Timestamp the version numbers. -->
-    <antcall target="prep">
-      <param name="featureDir" value="${featureDir}" />
-      <param name="pluginDir" value="${pluginDir}" />
-    </antcall>
-
-    <echo message="Launching the headless build." />
-    <java jar="${env.ECLIPSE_HOME}/plugins/${env.ECLIPSE_PLUGIN_EQUINOX}" fork="true">
-      <arg line="-application org.eclipse.ant.core.antRunner" />
-      <arg line="-buildfile ${env.ECLIPSE_HOME}/plugins/${env.ECLIPSE_PLUGIN_PDE_BUILD}/scripts/build.xml" />
-      <jvmarg value="-DbaseLocation=${env.ECLIPSE_HOME}" />
-      <jvmarg value="-DbuildDirectory=${basedir}/build" />
-    </java>
+    <mkdir dir="${build.result.folder}" />
+    <jar destfile="${build.result.folder}/sensor.eclipse.jar" basedir="${build.dir}/sensor.eclipse.jar.bin" />
+    <delete dir="${build.dir}/sensor.eclipse.jar.bin" />
+  </target>
+  
+  <target name="checkCompilationResults" if="compilation.error.occured">
+    <echo file="${compilation.problem.marker}" message="org.hackystat.sensor.eclipse : compilation.error.occured=${compilation.error.occured}" />
   </target>
 
   <target name="clean" description="Delete build/ directory.">
@@ -132,9 +167,42 @@
       <fileset file="${pluginDir}/META-INF/MANIFEST.MF" />
       <fileset file="${featureDir}/feature.xml" />
     </replaceregexp>
-
-    <!-- Update sensorshell.jar. -->
-    <copy todir="${basedir}/plugin/lib" file="${env.HACKYSTAT_SENSORSHELL_HOME}/sensorshell.jar" />
   </target>
+  
+  <target name="downloadSensorshellJar" depends="install-ivy">
+    <ivy:retrieve module="hackystat" organisation="org.hackystat" revision="${hackystat.version}" pattern="${lib.dir}/[artifact].[ext]" 
+      sync="false" inline="true" log="download-only" conf="shell" transitive="false" type="jar" />
+    <path id="sensorshell.path" location="${lib.dir}/sensorshell.jar" />
+  </target>
+  
+  <!-- Ivy download and configuration targets -->
+  <property name="ivy.jar.path" location="${user.home}/.ivy2/ivyjar/" />
+  <property name="library.versions.path" location="${user.home}/.hackystat/library.versions.properties" />
+  <property file="${library.versions.path}" />
+  <available file="${ivy.jar.path}/ivy.jar" type="file" property="ivy.available" />
+
+  <target name="install-ivy" depends="download-ivy-if-necessary" description="Makes Ivy tasks available, downloads Ivy first if necessary.">
+    <taskdef resource="org/apache/ivy/ant/antlib.xml" uri="antlib:org.apache.ivy.ant" classpath="${ivy.jar.path}/ivy.jar" />
+  </target>
+
+  <target name="download-ivy-if-necessary" unless="ivy.available" description="Only downloads Ivy if necessary.">
+    <antcall target="download-ivy" />
+  </target>
+
+  <target name="download-ivy" depends="download-library-versions-properties" description="Downloads ivy.jar and the library.versions.properties files.">
+    <mkdir dir="${ivy.jar.path}" />
+    <get src="http://repo1.maven.org/maven2/org/apache/ivy/ivy/${ivy.version}/ivy-${ivy.version}.jar" dest="${ivy.jar.path}/ivy.jar" usetimestamp="true" />
+  </target>
+
+  <target name="download-library-versions-properties">
+    <mkdir dir="${user.home}/.hackystat" />
+    <get src="http://hackystat.googlecode.com/svn/trunk/configfiles/library.versions.properties" dest="${library.versions.path}" usetimestamp="true" />
+    <property file="${library.versions.path}" />
+  </target>
+
+  <target name="clean-cache" description="Cleans the ivy cache">
+    <ivy:cleancache />
+  </target>
+
 </project>
 
