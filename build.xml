@@ -104,7 +104,7 @@
       	   includeAntRuntime="no" 
            bootclasspath="${bundleBootClasspath}" 
            source="${bundleJavacSource}" 
-           target="${bundleJavacTarget}">
+           target="${hackystat.javac.target}">
       <compilerarg line="${compilerArg}" compiler="${build.compiler}" />
       <classpath refid="compile.classpath" />
       <src path="${src.dir}" />
