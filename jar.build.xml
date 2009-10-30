@@ -18,6 +18,9 @@
     
     <!-- Gather required libraries and other plugin files. -->
     <copy todir="${plugin.bin.dir}" failonerror="true" overwrite="true">
+     	<filterset>
+    	    <filter token="Version" value="${version}"/>
+      </filterset>
       <fileset file="${build.dir}/sensor.eclipse.jar" />
       <fileset dir="${basedir}/plugin">
         <include name="META-INF/" />
