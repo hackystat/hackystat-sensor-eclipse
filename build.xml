@@ -55,8 +55,8 @@
   <property name="javacVerbose" value="false" />
   <property name="logExtension" value=".log" />
   <property name="compilerArg" value="" />
-  <property name="javacSource" value="1.6" />
-  <property name="javacTarget" value="1.6" />
+  <property name="javacSource" value="1.5" />
+  <property name="javacTarget" value="1.5" />
 
   <condition property="bundleBootClasspath" value="${JavaSE-1.6}">
     <isset property="JavaSE-1.6" />
@@ -109,7 +109,6 @@
       <classpath refid="compile.classpath" />
       <src path="${src.dir}" />
       <compilerarg line="-log '${build.dir}/sensor.eclipse.jar.bin${logExtension}'" compiler="org.eclipse.jdt.core.JDTCompilerAdapter" />
-      <compilerarg line="-Xlint:deprecation"  />
     </javac>
     
     <!-- Print out any compilation errors. --> 
