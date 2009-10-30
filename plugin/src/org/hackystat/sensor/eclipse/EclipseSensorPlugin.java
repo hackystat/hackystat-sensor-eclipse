@@ -30,7 +30,7 @@ public class EclipseSensorPlugin extends AbstractUIPlugin implements BundleActiv
   /** The plug-in ID. */
   public static final String PLUGIN_ID = "org.hackystat.sensor.eclipse";
   /** The shared instance (note that it is different from singleton). */
-  public static EclipseSensorPlugin plugin;
+  public static EclipseSensorPlugin plugin;  //NOPMD
   
   /**
    * Creates an Hackystat sensor plug-in runtime object for the given plug-in descriptor.
@@ -52,7 +52,7 @@ public class EclipseSensorPlugin extends AbstractUIPlugin implements BundleActiv
    * @param context Bundle context for Hackystat sensor.
    * @throws Exception If error while starting hackystat sensor.
    */
-  public void start(BundleContext context) throws Exception {
+  public void start(BundleContext context) throws Exception {  //NOPMD
     //Note that eclipse impose a time limitation on this method. The time consuming
     //sensor initialization code is moved to earlyStartup().
     super.start(context);
@@ -104,9 +104,9 @@ public class EclipseSensorPlugin extends AbstractUIPlugin implements BundleActiv
   /**
    * Implements an inner thread class to handle sensor update.  
    */
-  private class SensorUpdateThread extends Thread {
-    /** Resource bundle. */
-    private Bundle bundle;
+  private static class SensorUpdateThread extends Thread {
+    // /** Resource bundle. */
+    //private Bundle bundle;   // this is never assigned, so always null. Not sure why.
     /** Update site. */
     private String updateSite; 
     
@@ -132,7 +132,7 @@ public class EclipseSensorPlugin extends AbstractUIPlugin implements BundleActiv
       String last = EclipseSensorI18n.getString("VersionCheck.messageDialogMessageLast");
       String messages[] = {first, between, last};
       
-      VersionCheck versionCheck = new VersionCheck(this.bundle); 
+      VersionCheck versionCheck = new VersionCheck(null); // was this.bundle, but that's null.
       versionCheck.processUpdateDialog(updateSite, title, messages);
     }
   }

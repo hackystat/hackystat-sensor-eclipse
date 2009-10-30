@@ -25,7 +25,7 @@ public class SensorPreferencePage extends FieldEditorPreferencePage
   /** Password field. */
   private StringFieldEditor passwordField;
   /** Autosend Interval field. */
-  private IntegerFieldEditor autosendIntervalField;
+  private IntegerFieldEditor autosendIntervalField;  //NOPMD
   
   /** Autoupdate field. */
   //private BooleanFieldEditor autoUpdateEditor;

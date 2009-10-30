@@ -17,23 +17,17 @@
     <mkdir dir="${plugin.bin.dir}" />
     
     <!-- Gather required libraries and other plugin files. -->
-    <copy todir="${plugin.bin.dir}" failonerror="true" overwrite="false">
-      <fileset dir="${build.dir}">
-        <include name="sensor.eclipse.jar" />
-      </fileset>
-    </copy>
     <copy todir="${plugin.bin.dir}" failonerror="true" overwrite="true">
+      <fileset file="${build.dir}/sensor.eclipse.jar" />
       <fileset dir="${basedir}/plugin">
         <include name="META-INF/" />
         <include name="plugin.xml" />
-        <include name="sensor.eclipse.jar" />
-        <include name="lib/sensorshell.jar" />
-        <include name="lib/activation.jar" />
-        <include name="lib/jaxb-api.jar" />
-        <include name="lib/jaxb-impl.jar" />
-        <include name="lib/jsr173_1.0_api.jar" />
       </fileset>
     </copy>
+    <copy todir="${plugin.bin.dir}/lib">
+      <fileset file="${lib.dir}/hackystat-sensor-shell/sensorshell.jar" />
+    </copy>
+
     <antcall target="updateVersion">
       <param name="plugin.bin.dir" value="${plugin.bin.dir}"/>
     </antcall>
@@ -41,11 +35,12 @@
       <param name="target.folder" value="${build.dir}/org.hackystat.sensor.eclipse" />
       <param name="projectLocation" value="${basedir}" />
       <param name="projectName" value="${bundleId}_${bundleVersion}" />
-      <param name="binary.folders" value="${build.dir}/org.hackystat.sensor.eclipse/sensor.eclipse.jar:${lib.dir}/jsr173_1.0_api.jar:${lib.dir}/sensorshell.jar:${lib.dir}jaxb-api.jar:${lib.dir}/jaxb-impl.jar:${lib.dir}/activation.jar" />
+      <param name="binary.folders" value="${build.dir}/org.hackystat.sensor.eclipse/sensor.eclipse.jar:${lib.dir}/hackystat-sensor-shell/sensorshell.jar" />
     </antcall>
     
-  	<!-- Make a binary release on the top-level directory. -->
-    <jar destfile="${plugin.destination}/org.hackystat.sensor.eclipse_${plugin.version}.jar" 
+    <!-- Make a binary release on the top-level directory. Create a property so we can reference it in the install target. -->
+    <property name="jar.file.path" value="${plugin.destination}/org.hackystat.sensor.eclipse_${plugin.version}.jar"/>
+    <jar destfile="${jar.file.path}"
       	basedir="${build.dir}/org.hackystat.sensor.eclipse" filesetmanifest="merge" />
   </target>
   
@@ -57,5 +52,11 @@
   
   <target name="apitools.generation" if="generateAPIDescription" description="Generates files required by ApiTooling for binary bundles.">
     <apitooling.apigeneration projectName="${projectName}" project="${projectLocation}" binary="${binary.folders}" target="${target.folder}" />
+  </target>
+  
+  <target name="install" depends="jar" description="Creates the jar file, then copies to the local Eclipse plugins/ directory.">
+    <copy todir="${env.ECLIPSE_HOME}/plugins" overwrite="true">
+      <fileset file="${jar.file.path}"/>
+    </copy>
   </target>
 </project>

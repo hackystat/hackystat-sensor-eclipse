@@ -95,7 +95,7 @@ public class JavaStatementMeter extends ASTVisitor {
         this.numOfStatements += stmts.size();
         // Looks through all statements in this method body.
         for (Iterator i = stmts.iterator(); i.hasNext();) {
-          Statement stmt = (Statement) i.next();
+          Statement stmt = (Statement) i.next();  //NOPMD
           // MethodInvocation is one kind of expression statement.
           if (stmt instanceof ExpressionStatement) {
             ExpressionStatement estmt = (ExpressionStatement) stmt;

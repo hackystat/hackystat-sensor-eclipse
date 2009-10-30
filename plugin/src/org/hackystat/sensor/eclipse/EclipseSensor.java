@@ -75,7 +75,7 @@ public class EclipseSensor {
   /** The number of seconds of the state change after which timer will wake up again. */
   private long timerStateChangeInterval = 30;
 
-  /** The number of seconds of the buffer transition after which time will wake up again */
+  /** The number of seconds of the buffer transition after which time will wake up again. */
   private long timeBuffTransInterval = 5;
 
   /** The ITextEdtior instance to hold the active editor's (file's) information. */
@@ -84,7 +84,7 @@ public class EclipseSensor {
   /** The active buffer to hold the buffer size of the active file. */
   private int activeBufferSize;
 
-  /** The ITextEditor instance to hold the previous active editor's information */
+  /** The ITextEditor instance to hold the previous active editor's information. */
   private ITextEditor previousTextEditor;
 
   /**
@@ -93,7 +93,7 @@ public class EclipseSensor {
    */
   private ITextEditor deactivatedTextEditor;
 
-  /** The threshold buffer size at an file activation to be compared with activeBufferSize */
+  /** The threshold buffer size at an file activation to be compared with activeBufferSize. */
   private int thresholdBufferSize;
 
   /** The boolean value to check if an previous file is modified. */
@@ -162,7 +162,7 @@ public class EclipseSensor {
    * @return The (singleton) instance.
    * @throws SensorShellException If problem occurred in instantiating the sensor.
    */
-  public synchronized static EclipseSensor getInstance() throws SensorShellException {
+  public static synchronized EclipseSensor getInstance() throws SensorShellException {
     if (theInstance == null) {
       theInstance = new EclipseSensor();
     }
@@ -340,7 +340,7 @@ public class EclipseSensor {
   /** Latest file size. */
   private int latestStateChangeFileSize = 0;
   /** Class name to file URI map. */
-  private HashMap<String, URI> class2FileMap = new HashMap<String, URI>();
+  private Map<String, URI> class2FileMap = new HashMap<String, URI>();
 
   /**
    * Process the state change activity whose element consists of the (absolute) file name and its
@@ -494,7 +494,8 @@ public class EclipseSensor {
         String message = "BuffTrans : " + this.extractFileName(fromFile) + " --> " +
                           this.extractFileName(toFile);
 
-        this.addDevEvent(EclipseSensorConstants.DEVEVENT_EDIT, toFile, buffTranKeyValuePairs, message);
+        this.addDevEvent(EclipseSensorConstants.DEVEVENT_EDIT, toFile, 
+            buffTranKeyValuePairs, message);
         latestBuffTrans = buffTrans;
       }
     }
@@ -555,8 +556,7 @@ public class EclipseSensor {
         IFileEditorInput input = (IFileEditorInput) editorInput;
         IFile file = input.getFile();
         if (file != null) {
-          URI fileResource = file.getLocationURI();
-          return fileResource;
+          return file.getLocationURI();
         }
       }
     }
@@ -743,10 +743,13 @@ public class EclipseSensor {
             && fileResource.toString().endsWith(EclipseSensorConstants.JAVA_EXT)) {
           keyValueMap.put("Language", "java");
         }
-        keyValueMap.put(EclipseSensorConstants.UNIT_TYPE, EclipseSensorConstants.FILE);
-        keyValueMap.put(EclipseSensorConstants.UNIT_NAME, EclipseSensor.this.extractFileName(fileResource));
-        EclipseSensor.this.addDevEvent(EclipseSensorConstants.DEVEVENT_EDIT, 
+        if (fileResource != null) {
+          keyValueMap.put(EclipseSensorConstants.UNIT_TYPE, EclipseSensorConstants.FILE);
+          keyValueMap.put(EclipseSensorConstants.UNIT_NAME, 
+            EclipseSensor.this.extractFileName(fileResource));
+          EclipseSensor.this.addDevEvent(EclipseSensorConstants.DEVEVENT_EDIT, 
             fileResource, keyValueMap, fileResource.toString());
+        }
         IEditorPart activeEditorPart = part.getSite().getPage().getActiveEditor();
         if (activeEditorPart == null) {
           EclipseSensor.this.activeTextEditor = null;
