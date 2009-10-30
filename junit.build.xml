@@ -18,11 +18,11 @@
       <classpath>
         <pathelement location="${build.dir}/classes" />
         <path refid="compile.classpath"/>
-        <pathelement location="${build.dir}/plugins/org.hackystat.sensor.eclipse/sensor.eclipse.jar" />
       </classpath>
+      <sysproperty key="user.dir" value="${basedir}" />
       <formatter type="xml" />
       <batchtest todir="${junit.build.dir}">
-        <fileset dir="${basedir}/plugin/src" includes="**/Test*.java" excludes="**/TestRunnerSensor.java"/>
+        <fileset dir="${src.dir}" includes="**/Test*.java" excludes="**/jaxb/**"/>
       </batchtest>
     </junit>
   </target>

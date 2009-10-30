@@ -2,7 +2,7 @@
   <import file="build.xml"/>
   <import file="jar.build.xml"/>   
 
-  <target name="dist" depends="clean, compile, jar" description="Create a distribution package.">
+  <target name="dist" depends="clean,compile,jar" description="Create a distribution package.">
     <!-- Define the directories and distribution name -->
     <property name="dist.dir" location="${build.dir}/dist" />
     <property name="dist.tmp.dir" location="${basedir}/dist-tmp" />
@@ -12,7 +12,7 @@
  
     <mkdir dir="${dist.tmp.dir}/${dist.name}" />
     <copy todir="${dist.tmp.dir}/${dist.name}">
-      <fileset dir="${basedir}" excludes="lib/**, javadoc/**, dist-tmp/**, bin/**, **/.svn/*, **/*~, tmp/**, build/**, plugin/build/**,plugin/build.xml,plugin/javaCompiler.sensor.eclipse.jar.args" />
+      <fileset dir="${basedir}" excludes="javadoc/**, dist-tmp/**, bin/**, **/.svn/*, **/*~, tmp/**, build/**, plugin/build/**,plugin/build.xml,plugin/javaCompiler.sensor.eclipse.jar.args" />
     </copy>
 
     <!-- Create the zip distribution of this system, and then delete the tmp dir. -->

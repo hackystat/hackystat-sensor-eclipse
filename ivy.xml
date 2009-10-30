@@ -1,7 +1,0 @@
-<ivy-module version="2.0">
-  <info organisation="org.hackystat" module="hackystat-sensor-eclipse"/>
-  <dependencies>
-    <dependency org="org.junit" name="junit" rev="${junit.version}" />
-    <dependency org="org.hackystat" name="hackystat-sensor-shell" rev="latest.integration" />
-  </dependencies>
-</ivy-module>

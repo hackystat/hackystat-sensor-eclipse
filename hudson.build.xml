@@ -1,17 +1,7 @@
 <project name="hudson.eclipse" default="hudson.basic">
   <description>
     Tasks for use by Hudson continuous integration system.
-  </description>
-
-  <!-- First, override the default settings of these properties. -->
-  <!--
-  <property name="javadoc.failonerror" value="true"/>
-  <property name="pmd.failonerror" value="true"/>
-  <property name="findbugs.failOnError" value="true"/>  
-  <property name="checkstyle.failOnViolation" value="true"/> 
-  <property name="junit.haltonfailure" value="true"/>
-  --> 
-  
+  </description
 
   <!-- Now import the target definitions. -->
   <import file="javadoc.build.xml"/>  
@@ -26,17 +16,17 @@
   
       
   <target name="hudson.basic" 
-    depends="clean, compile" 
+    depends="clean, compile, checkstyle.tool, junit.tool, pmd.tool, jar, dist" 
     description="Fast build for production purposes. No sensors.">
   </target>
   
   <target name="hudson.daily.build" 
-     depends="clean, compile" 
+     depends="clean, compile, checkstyle.tool, junit.tool, pmd.tool, jar" 
      description="Builds and runs all QA stuff in preparation for sending sensor data.">
   </target>
 
   <target name="hudson.daily.junit" 
-      description="No JUnit."/>
+    depends="junit.tool, junit.sensor"  description="JUnit plus sensor."/>
   
   <target name="hudson.daily.javancss"  
     depends="javancss.tool, javancss.sensor"  description="JavaNCSS plus sensor."/>

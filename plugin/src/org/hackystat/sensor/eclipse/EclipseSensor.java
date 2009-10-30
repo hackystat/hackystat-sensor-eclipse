@@ -340,7 +340,7 @@ public class EclipseSensor {
   /** Latest file size. */
   private int latestStateChangeFileSize = 0;
   /** Class name to file URI map. */
-  private HashMap<String, URI> class2FileMap = new HashMap<String, URI>();
+  private Map<String, URI> class2FileMap = new HashMap<String, URI>();
 
   /**
    * Process the state change activity whose element consists of the (absolute) file name and its
@@ -556,8 +556,7 @@ public class EclipseSensor {
         IFileEditorInput input = (IFileEditorInput) editorInput;
         IFile file = input.getFile();
         if (file != null) {
-          URI fileResource = file.getLocationURI();
-          return fileResource;
+          return file.getLocationURI();
         }
       }
     }
@@ -744,11 +743,13 @@ public class EclipseSensor {
             && fileResource.toString().endsWith(EclipseSensorConstants.JAVA_EXT)) {
           keyValueMap.put("Language", "java");
         }
-        keyValueMap.put(EclipseSensorConstants.UNIT_TYPE, EclipseSensorConstants.FILE);
-        keyValueMap.put(EclipseSensorConstants.UNIT_NAME, 
+        if (fileResource != null) {
+          keyValueMap.put(EclipseSensorConstants.UNIT_TYPE, EclipseSensorConstants.FILE);
+          keyValueMap.put(EclipseSensorConstants.UNIT_NAME, 
             EclipseSensor.this.extractFileName(fileResource));
-        EclipseSensor.this.addDevEvent(EclipseSensorConstants.DEVEVENT_EDIT, 
+          EclipseSensor.this.addDevEvent(EclipseSensorConstants.DEVEVENT_EDIT, 
             fileResource, keyValueMap, fileResource.toString());
+        }
         IEditorPart activeEditorPart = part.getSite().getPage().getActiveEditor();
         if (activeEditorPart == null) {
           EclipseSensor.this.activeTextEditor = null;

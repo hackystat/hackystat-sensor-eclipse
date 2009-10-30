@@ -40,13 +40,15 @@
     <findbugs jvmargs="-Xmx512M" classpath="${findbugs.classpath}" pluginList="" failOnError="${findbugs.failOnError}" warningsProperty="findbugs.warningsfound" output="xml:withMessages" outputFile="${findbugs.dir}/findbugs.xml" excludeFilter="${findbugs.filter.file}">
       <auxClasspath>
         <path refid="compile.classpath" />
+        <path refid="junit.path" />
+        <path refid="hackystat-sensor-shell.path" />
       </auxClasspath>
       <sourcePath>
         <fileset dir="${src.dir}">
           <include name="**/*.java" />
         </fileset>
       </sourcePath>
-      <class location="${build.dir}/classes" />
+      <class location="${sensor.eclipse.jar.bin.dir}" />
     </findbugs>
   </target>
 
